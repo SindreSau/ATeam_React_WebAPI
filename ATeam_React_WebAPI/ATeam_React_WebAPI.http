@@ -1,0 +1,6 @@
+@ATeam_React_WebAPI_HostAddress = http://localhost:5177
+
+GET {{ATeam_React_WebAPI_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

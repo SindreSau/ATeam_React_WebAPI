@@ -31,6 +31,8 @@ builder.WebHost.UseUrls("http://localhost:5000", "https://localhost:5001");
 builder.Host.UseSerilog();
 
 // Add services to the container
+builder.Services.AddAuthentication().AddBearerToken(IdentityConstants.BearerScheme);
+builder.Services.AddAuthorizationBuilder();
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
@@ -38,7 +40,7 @@ builder.Services.AddSwaggerGen();
 // Configure services using extension methods from the Configuration folder
 builder.Services
     .AddDatabaseServices(builder.Configuration)
-    .AddIdentityServices();  // This should be using the WebAPI version we created earlier
+    .AddIdentityServices();
 
 var app = builder.Build();
 
@@ -91,6 +93,7 @@ app.UseRouting();
 
 app.UseAuthentication();
 app.UseAuthorization();
+app.MapIdentityApi<IdentityUser>(); // This maps all the Identity endpoints
 
 app.UseRequestLogging();
 

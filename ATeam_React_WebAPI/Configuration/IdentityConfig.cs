@@ -9,17 +9,29 @@ public static class IdentityConfig
     {
         services.AddIdentity<IdentityUser, IdentityRole>(options =>
             {
+                // Disable all confirmation and lockout
                 options.SignIn.RequireConfirmedAccount = false;
                 options.SignIn.RequireConfirmedEmail = false;
+                options.SignIn.RequireConfirmedPhoneNumber = false;
+
+                // Simplify password requirements
                 options.Password.RequireDigit = true;
                 options.Password.RequiredLength = 6;
-                options.Password.RequireUppercase = true;
                 options.Password.RequireLowercase = true;
                 options.Password.RequireNonAlphanumeric = false;
+                options.Password.RequireUppercase = true;
+
+                // Disable lockout
+                options.Lockout.AllowedForNewUsers = false;
+                options.Lockout.MaxFailedAccessAttempts = 1000;
+                options.Lockout.DefaultLockoutTimeSpan = TimeSpan.Zero;
+
+                // User settings
+                options.User.RequireUniqueEmail = true;
             })
             .AddEntityFrameworkStores<ApplicationDbContext>()
             .AddDefaultTokenProviders()
-            .AddApiEndpoints(); // Adds the default API endpoints
+            .AddApiEndpoints();
 
         return services;
     }

@@ -1,8 +1,9 @@
 using ATeam_React_WebAPI.Configuration;
-using Microsoft.AspNetCore.Identity;
 using ATeam_React_WebAPI.Data;
+using Microsoft.AspNetCore.Identity;
 using ATeam_React_WebAPI.Middleware;
 using Serilog;
+using Microsoft.OpenApi.Models;
 using Serilog.Events;
 
 Log.Logger = new LoggerConfiguration()
@@ -33,9 +34,56 @@ builder.Host.UseSerilog();
 // Add services to the container
 builder.Services.AddAuthentication().AddBearerToken(IdentityConstants.BearerScheme);
 builder.Services.AddAuthorizationBuilder();
+
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+
+// Enhanced Swagger configuration
+builder.Services.AddSwaggerGen(options =>
+{
+    options.SwaggerDoc("v1", new OpenApiInfo
+    {
+        Title = "ATeam Food API",
+        Version = "v1",
+        Description = "API for ATeam Food Vendor Application"
+    });
+
+    // Add Bearer token authentication support in Swagger UI
+    options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+    {
+        Type = SecuritySchemeType.Http,
+        Scheme = "bearer",
+        Description = "Enter your bearer token to access the API"
+    });
+
+    options.AddSecurityRequirement(new OpenApiSecurityRequirement
+    {
+        {
+            new OpenApiSecurityScheme
+            {
+                Reference = new OpenApiReference
+                {
+                    Type = ReferenceType.SecurityScheme,
+                    Id = "Bearer"
+                }
+            },
+            Array.Empty<string>()
+        }
+    });
+});
+
+// CORS if needed
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowReactApp",
+        policyBuilder =>
+        {
+            policyBuilder.WithOrigins("http://localhost:3000") // Your React app URL
+                .AllowAnyMethod()
+                .AllowAnyHeader()
+                .AllowCredentials();
+        });
+});
 
 // Configure services using extension methods from the Configuration folder
 builder.Services
@@ -77,7 +125,12 @@ using (var scope = app.Services.CreateScope())
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
-    app.UseSwaggerUI();
+    app.UseSwaggerUI(c =>
+    {
+        c.SwaggerEndpoint("/swagger/v1/swagger.json", "ATeam Food API V1");
+        c.EnableDeepLinking();
+        c.DisplayRequestDuration();
+    });
     Log.Information("Running in development mode");
 }
 else
@@ -89,11 +142,16 @@ else
 
 app.UseHttpsRedirection();
 
+// Add CORS if needed
+app.UseCors("AllowReactApp");
+
 app.UseRouting();
 
 app.UseAuthentication();
 app.UseAuthorization();
-app.MapIdentityApi<IdentityUser>(); // This maps all the Identity endpoints
+
+// Map Identity endpoints with custom path prefix if desired
+app.MapIdentityApi<IdentityUser>();
 
 app.UseRequestLogging();
 

@@ -1,5 +1,5 @@
-interface FoodProduct {
-    foodProductId: number;
+export interface FoodProduct {
+    productId: number;
     productName: string;
     energyKcal: number;
     fat: number;
@@ -8,4 +8,6 @@ interface FoodProduct {
     fiber: number;
     salt: number;
     nokkelhullQualified: boolean;
+    categoryId: number;
+    categoryName: string;
 }

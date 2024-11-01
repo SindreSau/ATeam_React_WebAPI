@@ -4,6 +4,7 @@ import { Link } from 'react-router-dom';
 
 interface FoodProductCardProps {
     foodProduct: FoodProduct;
+    onDelete: (productId: number) => void;
 }
 
 export const FoodProductCard: React.FC<FoodProductCardProps> = ({ foodProduct }) => {
@@ -54,7 +55,7 @@ export const FoodProductCard: React.FC<FoodProductCardProps> = ({ foodProduct })
                 </Link>
                 <button 
                     className="btn btn-sm btn-outline-danger" 
-                    onClick={() => handleDelete(foodProduct.productId)}
+                    onClick={() => onDelete(foodProduct.productId)}
                 >
                     <i className="fa fa-trash"></i> Delete
                 </button>

@@ -92,11 +92,12 @@ app.UseRouting();
 app.UseAuthentication();
 app.UseAuthorization();
 
-app.UseRequestLogging();  // Assuming you've moved this middleware to the Web API project
+app.UseRequestLogging();
 
 app.MapControllers();
 
 Log.Information("Web API application started successfully");
 Log.Information("Web API listening on http://localhost:5000 and https://localhost:5001");
+Log.Information("Access the Swagger UI at https://localhost:5001/swagger");
 
 await app.RunAsync();

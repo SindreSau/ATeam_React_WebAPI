@@ -72,13 +72,15 @@ builder.Services.AddSwaggerGen(options =>
     });
 });
 
-// CORS if needed
+// CORS configuration
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowReactApp",
         policyBuilder =>
         {
-            policyBuilder.WithOrigins("http://localhost:3000") // Your React app URL
+            var allowedOrigins = builder.Configuration.GetSection("Cors:AllowedOrigins").Get<string[]>();
+            policyBuilder
+                .WithOrigins(allowedOrigins ?? ["http://localhost:3000"])
                 .AllowAnyMethod()
                 .AllowAnyHeader()
                 .AllowCredentials();
@@ -142,7 +144,7 @@ else
 
 app.UseHttpsRedirection();
 
-// Add CORS if needed
+// Enable CORS for the React app
 app.UseCors("AllowReactApp");
 
 app.UseRouting();

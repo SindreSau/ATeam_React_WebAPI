@@ -11,3 +11,14 @@ riderModule.iml
 */.vscode/*
 */.vs/*
 */.DS_Store
+.idea
+.vscode
+.vs
+.DS_Store
+*/bin
+*/obj
+
+*.db
+*.db-shm
+*.db-wal
+

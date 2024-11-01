@@ -2,6 +2,7 @@ import React, {useEffect, useState, useCallback} from 'react';
 import {useSearchParams} from 'react-router-dom';
 import {FoodProduct} from '../types/foodProduct';
 import {FoodProductCard} from './FoodProductCard';
+import { SearchForm } from './SearchForm';
 
 export const FoodProductList: React.FC = () => {
     const [foodProducts, setFoodProducts] = useState<FoodProduct[]>([]);

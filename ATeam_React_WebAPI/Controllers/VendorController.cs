@@ -8,8 +8,8 @@ using ATeam_React_WebAPI.Interfaces;
 
 namespace ATeam_React_WebAPI.Controllers;
 
-[Route("api/[controller]")]
 [ApiController]
+[Route("api/[controller]")]
 [Authorize(Roles = "Vendor")]
 public class VendorController : ControllerBase
 {
@@ -28,5 +28,10 @@ public class VendorController : ControllerBase
     _userManager = userManager;
   }
 
-
+    // GET: api/Vendor/Health
+    [HttpGet("Health")]
+    public IActionResult Health()
+    {
+        return Ok("Vendor is healthy");
+    }
 }

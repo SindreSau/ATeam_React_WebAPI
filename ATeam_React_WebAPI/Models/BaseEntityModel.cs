@@ -1,4 +1,4 @@
-namespace ATeam_React_WebApi.Models;
+namespace ATeam_React_WebAPI.Models;
 
 /**
  * Base class for all entities in the database.

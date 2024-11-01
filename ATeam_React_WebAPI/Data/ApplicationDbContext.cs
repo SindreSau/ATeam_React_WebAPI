@@ -1,9 +1,9 @@
-using ATeam_React_WebApi.Models;
+using ATeam_React_WebAPI.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 
-namespace ATeam_React_WebApi.Data;
+namespace ATeam_React_WebAPI.Data;
 
 public class ApplicationDbContext : IdentityDbContext
 {

@@ -2,7 +2,7 @@ using System.Diagnostics;
 using Microsoft.AspNetCore.Identity;
 using Serilog.Context;
 
-namespace ATeam_React_WebApi.Middleware;
+namespace ATeam_React_WebAPI.Middleware;
 
 public class RequestLoggingMiddleware
 {

@@ -1,9 +1,9 @@
-using ATeam_React_WebApi.Interfaces;
-using ATeam_React_WebApi.Models;
-using ATeam_React_WebApi.Data;
+using ATeam_React_WebAPI.Interfaces;
+using ATeam_React_WebAPI.Models;
+using ATeam_React_WebAPI.Data;
 using Microsoft.EntityFrameworkCore;
 
-namespace ATeam_React_WebApi.Repositories
+namespace ATeam_React_WebAPI.Repositories
 {
   public class FoodCategoryRepository : IFoodCategoryRepository
   {

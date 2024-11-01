@@ -1,4 +1,4 @@
-namespace ATeam_React_WebApi.Configuration;
+namespace ATeam_React_WebAPI.Configuration;
 
 public static class SessionConfig
 {

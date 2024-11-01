@@ -1,6 +1,6 @@
 using Serilog;
 
-namespace ATeam_React_WebApi.Services;
+namespace ATeam_React_WebAPI.Services;
 
 public static class NutritionCalculatorService
 {

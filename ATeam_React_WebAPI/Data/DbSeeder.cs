@@ -1,9 +1,9 @@
-using ATeam_React_WebApi.Models;
-using ATeam_React_WebApi.Services;
+using ATeam_React_WebAPI.Models;
+using ATeam_React_WebAPI.Services;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
-namespace ATeam_React_WebApi.Data;
+namespace ATeam_React_WebAPI.Data;
 
 public static class DbSeeder
 {

@@ -1,6 +1,6 @@
-using ATeam_React_WebApi.Models;
+using ATeam_React_WebAPI.Models;
 
-namespace ATeam_React_WebApi.Interfaces;
+namespace ATeam_React_WebAPI.Interfaces;
 
 public interface IFoodProductRepository
 {

@@ -1,9 +1,9 @@
-using ATeam_React_WebApi.Data;
-using ATeam_React_WebApi.Interfaces;
-using ATeam_React_WebApi.Repositories;
+using ATeam_React_WebAPI.Data;
+using ATeam_React_WebAPI.Interfaces;
+using ATeam_React_WebAPI.Repositories;
 using Microsoft.EntityFrameworkCore;
 
-namespace ATeam_React_WebApi.Configuration;
+namespace ATeam_React_WebAPI.Configuration;
 
 public static class DatabaseConfig
 {

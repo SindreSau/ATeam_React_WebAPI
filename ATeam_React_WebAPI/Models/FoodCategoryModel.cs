@@ -1,6 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 
-namespace ATeam_React_WebApi.Models
+namespace ATeam_React_WebAPI.Models
 {
   public class FoodCategory : BaseEntity
   {

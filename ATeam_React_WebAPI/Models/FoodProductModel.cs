@@ -2,7 +2,7 @@ using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using Microsoft.AspNetCore.Identity;
 
-namespace ATeam_React_WebApi.Models
+namespace ATeam_React_WebAPI.Models
 {
 	public class FoodProduct : BaseEntity
 	{

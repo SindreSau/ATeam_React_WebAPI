@@ -1,10 +1,10 @@
-using ATeam_React_WebApi.Data;
-using ATeam_React_WebApi.Interfaces;
-using ATeam_React_WebApi.Models;
-using ATeam_React_WebApi.Services;
+using ATeam_React_WebAPI.Data;
+using ATeam_React_WebAPI.Interfaces;
+using ATeam_React_WebAPI.Models;
+using ATeam_React_WebAPI.Services;
 using Microsoft.EntityFrameworkCore;
 
-namespace ATeam_React_WebApi.Repositories
+namespace ATeam_React_WebAPI.Repositories
 {
     // Repository class for managing food products
     public class FoodProductRepository : IFoodProductRepository

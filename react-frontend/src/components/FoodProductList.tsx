@@ -50,6 +50,19 @@ export const FoodProductList: React.FC = () => {
         });
     }, [fetchFoodProducts, searchParams]);
 
+    const handleDelete = async (productId: number) => {
+        try {
+            const response = await fetch(`/api/foodproducts/${productId}`, {
+                method: 'DELETE'
+            });
+            if (response.ok) {
+                setFoodProducts(products => products.filter(p => p.productId !== productId));
+            }
+        } catch (error) {
+            setError('Error deleting food product');
+        }
+    };
+
     if (error) {
         return (
             <div className='alert alert-danger' role='alert'>

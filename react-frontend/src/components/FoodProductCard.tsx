@@ -7,7 +7,7 @@ interface FoodProductCardProps {
     onDelete: (productId: number) => void;
 }
 
-export const FoodProductCard: React.FC<FoodProductCardProps> = ({ foodProduct }) => {
+export const FoodProductCard: React.FC<FoodProductCardProps> = ({ foodProduct, onDelete }) => {
 
     return (
         <div className="card mb-3">

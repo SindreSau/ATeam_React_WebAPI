@@ -67,6 +67,7 @@ public class CategoryController : ControllerBase
 
   // === CREATE ===
   // POST : api/category
+  [HttpPost]
   public async Task<ActionResult<FoodCategoryDTO>> CreateCategory([FromBody] CategoryCreateDTO createDTO)
   {
     if (!ModelState.IsValid)

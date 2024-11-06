@@ -66,7 +66,7 @@ public class VendorController : ControllerBase
   // GET : api/vendor
   // Returns paginated list of food products
   [HttpGet]
-  public async Task<ActionResult<PaginatedResponse<FoodProductDTO>>> GetProducts([FromQuery] PaginationParameters parameters)
+  public async Task<ActionResult<PaginatedResponse<FoodProductDTO>>> GetProducts([FromQuery] PaginationParameters parameters, [FromQuery] string searchTerm = "")
   {
     try
     {
@@ -80,7 +80,7 @@ public class VendorController : ControllerBase
         parameters.PageSize,
         parameters.OrderBy,
         parameters.Nokkelhull,
-        parameters.Search);
+        searchTerm);
 
       // Get total count for pagination:
       var totalCount = await _foodProductRepository.GetFoodProductsByVendorCountAsync(userId);

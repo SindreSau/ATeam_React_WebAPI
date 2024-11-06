@@ -9,7 +9,14 @@ export const fetchFoodProducts = async (searchTerm: string, pagination: { pageNu
         pageSize: pagination.pageSize.toString()
     });
 
-    const response = await fetch(`http://localhost:5000/api/Admin?${queryParams}`);
+
+
+    if (!response.ok) {
+        throw new Error('Failed to fetch food products');
+    }
+
+    return response.json();
+}; 
 
     if (!response.ok) {
         throw new Error('Failed to fetch food products');

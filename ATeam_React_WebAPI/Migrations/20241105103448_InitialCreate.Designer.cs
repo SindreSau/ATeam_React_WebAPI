@@ -11,7 +11,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace ATeam_React_WebAPI.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20241101114712_InitialCreate")]
+    [Migration("20241105103448_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />

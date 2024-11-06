@@ -79,7 +79,8 @@ public class VendorController : ControllerBase
         parameters.PageNumber,
         parameters.PageSize,
         parameters.OrderBy,
-        parameters.Nokkelhull);
+        parameters.Nokkelhull,
+        parameters.Search);
 
       // Get total count for pagination:
       var totalCount = await _foodProductRepository.GetFoodProductsByVendorCountAsync(userId);

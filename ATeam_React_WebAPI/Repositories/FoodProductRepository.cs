@@ -96,7 +96,7 @@ namespace ATeam_React_WebAPI.Repositories
         }
 
         // Get paginated food products by vendor ID with filter and sort criteria
-        public async Task<IEnumerable<FoodProduct>> GetFoodProductsByVendorAsync(string vendorId, int pageNumber, int pageSize, string orderBy, bool? nokkelhull)
+        public async Task<IEnumerable<FoodProduct>> GetFoodProductsByVendorAsync(string vendorId, int pageNumber, int pageSize, string orderBy, bool? nokkelhull, string? search)
         {
             // Create a queryable collection of food products
             var query = _context.FoodProducts
@@ -104,6 +104,13 @@ namespace ATeam_React_WebAPI.Repositories
                 .Include(fp => fp.CreatedBy)
                 .Where(fp => fp.CreatedById == vendorId) // Filter by vendor ID
                 .AsQueryable();
+
+            // Apply search if term provided
+            if (!string.IsNullOrWhiteSpace(search))
+            {
+                search = search.ToLower();
+                query = query.Where(p => p.ProductName.ToLower().Contains(search));
+            }
 
             // Filter products based on whether they are Nokkelhull qualified
             if (nokkelhull != null)

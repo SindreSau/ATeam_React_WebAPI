@@ -37,5 +37,6 @@ namespace ATeam_React_WebAPI.DTOs.Common
     public string OrderBy { get; set; } = "productid";
     // Filtering
     public bool? Nokkelhull { get; set; }
+    public string? Search { get; set; }
   }
 }

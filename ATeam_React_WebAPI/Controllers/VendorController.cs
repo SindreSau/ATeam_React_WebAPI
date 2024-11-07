@@ -14,7 +14,7 @@ namespace ATeam_React_WebAPI.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
-[Authorize(Roles = "Vendor")]
+//[Authorize(Roles = "Vendor")]
 public class VendorController : ControllerBase
 {
   private readonly IFoodProductRepository _foodProductRepository;
@@ -275,6 +275,7 @@ public class VendorController : ControllerBase
     {
       return Unauthorized();
     }
+    
     catch (KeyNotFoundException)
     {
       return NotFound();

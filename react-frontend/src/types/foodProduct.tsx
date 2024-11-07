@@ -8,7 +8,9 @@ export interface FoodProduct {
     fiber: number;
     salt: number;
     nokkelhullQualified: boolean;
+    categoryId: number;
     categoryName: string;
     createdByUsername: string;
+
     
 }

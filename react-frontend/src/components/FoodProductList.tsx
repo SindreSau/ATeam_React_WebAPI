@@ -1,9 +1,10 @@
 import React, {useEffect, useState} from 'react';
 import {useSearchParams} from 'react-router-dom';
 import {FoodProduct} from '../types/foodProduct';
-import {fetchFoodProducts} from '../services/foodProductService';
+import {fetchFoodProducts, updateFoodProduct} from '../services/foodProductService';
 import {FoodProductCard} from './FoodProductCard';
 import {SearchForm} from './SearchForm';
+import { CardEditModal } from './CardEditModal';
 
 export const FoodProductList: React.FC = () => {
     const [searchParams, setSearchParams] = useSearchParams();
@@ -11,6 +12,27 @@ export const FoodProductList: React.FC = () => {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
     const [totalCount, setTotalCount] = useState(0);
+    const [modalOpen, setModalOpen] = useState(false);
+    const [currentFoodProductCard, setCurrentFoodProductCard] = useState<FoodProduct | null>(null);
+
+    const openModal = (foodProductCard: FoodProduct) => {
+        setCurrentFoodProductCard(foodProductCard);
+        setModalOpen(true);
+    };
+
+    const closeModal = () => {
+        setModalOpen(false);
+        setCurrentFoodProductCard(null);
+    }
+
+    const handleUpdate = async (updatedProduct: FoodProduct) => {
+        try {
+            await updateFoodProduct(updatedProduct);
+            setFoodProducts(prev => prev.map(p => p.productId === updatedProduct.productId ? updatedProduct : p));
+        } catch (error) {
+            setError('Error updating food product');
+        }
+    };
 
     const handleDelete = async (productId: number) => {
         try {
@@ -65,7 +87,8 @@ export const FoodProductList: React.FC = () => {
                 {foodProducts.map(product => (
                     <div key={product.productId} className="col-md-4 mb-4">
                         <FoodProductCard 
-                            foodProduct={product} 
+                            foodProduct={product}
+                            onEdit={() => openModal(product)}
                             onDelete={handleDelete} 
                         />
                     </div>
@@ -73,6 +96,9 @@ export const FoodProductList: React.FC = () => {
             </div>
             {foodProducts.length === 0 && (
                 <div>No products found</div>
+            )}
+            {modalOpen && (
+                <CardEditModal foodProduct={currentFoodProductCard!} show={modalOpen} onClose={closeModal} onSave={handleUpdate} />
             )}
         </div>
     );

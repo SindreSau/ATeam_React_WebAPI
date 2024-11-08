@@ -1,22 +1,24 @@
 import React from 'react'
 import NavBar from './NavBar'
 import Footer from './Footer'
-import { Outlet } from 'react-router-dom'
+import {Outlet} from 'react-router-dom'
 
-type Props = {}
+const MainLayout = () => {
+    return (
+        <div className="d-flex flex-column min-vh-100">
+            <header>
+                <NavBar/>
+            </header>
 
-const MainLayout = (props: Props) => {
-  return (
-<div className='d-flex flex-column min-vh-100'>
-    <NavBar />
-    <div className='container-md'>
-      <Outlet />
-    </div>
+            <main className="container-md flex-grow-1 py-4">
+                <Outlet/>
+            </main>
 
+            <footer>
+                <Footer/>
+            </footer>
+        </div>
+    );
+};
 
-    <Footer />
-</div>
-  )
-}
-
-export default MainLayout
+export default MainLayout;

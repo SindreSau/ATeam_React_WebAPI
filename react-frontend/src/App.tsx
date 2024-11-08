@@ -1,23 +1,23 @@
 import React from 'react';
-import logo from './logo.svg';
 import './App.css';
 import MainLayout from './components/MainLayout';
-import { BrowserRouter, Route, Routes } from 'react-router-dom';
-
-
+import {BrowserRouter, Route, Routes} from 'react-router-dom';
+import Home from "./pages/Home";
+import Products from "./pages/Products";
 
 
 function App() {
-  return (
-    <BrowserRouter>
-      <Routes>
-        <Route path='/' element={<MainLayout />} >
-          <Route index element={<>Her legges innhold på siden</>} />
-        </Route>
-      </Routes>
-    </BrowserRouter>
+    return (
+        <BrowserRouter>
+            <Routes>
+                <Route path='/' element={<MainLayout/>}>
+                    <Route index element={<Home/>}/>
+                    <Route path={'/products'} element={<Products/>}/>
+                </Route>
+            </Routes>
+        </BrowserRouter>
 
-  );
+    );
 }
 
 export default App;

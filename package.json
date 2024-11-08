@@ -1,0 +1,11 @@
+{
+  "devDependencies": {
+    "@types/bootstrap": "^5.2.10",
+    "fastbootstrap": "^2.2.0"
+  },
+  "dependencies": {
+    "@tanstack/react-query": "^5.59.20",
+    "@tanstack/react-query-devtools": "^5.59.20",
+    "axios": "^1.7.7"
+  }
+}

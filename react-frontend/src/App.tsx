@@ -4,7 +4,16 @@ import MainLayout from './components/MainLayout';
 import {BrowserRouter, Route, Routes} from 'react-router-dom';
 import Home from "./pages/Home";
 import Products from "./pages/Products";
+import {QueryClient} from "@tanstack/react-query";
 
+const queryClient = new QueryClient({
+    defaultOptions: {
+        queries: {
+            staleTime: 1000 * 60 * 5, // 5 minutes
+            refetchOnWindowFocus: false,
+        },
+    },
+});
 
 function App() {
     return (

@@ -32,8 +32,7 @@ builder.WebHost.UseUrls("http://localhost:5000", "https://localhost:5001");
 builder.Host.UseSerilog();
 
 // Add services to the container
-builder.Services.AddAuthentication().AddBearerToken(IdentityConstants.BearerScheme);
-builder.Services.AddAuthorizationBuilder();
+builder.Services.AddAuthorization();
 
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
@@ -86,6 +85,7 @@ builder.Services.AddCors(options =>
                 .AllowCredentials();
         });
 });
+
 
 // Configure services using extension methods from the Configuration folder
 builder.Services
@@ -154,10 +154,9 @@ app.UseAuthorization();
 
 // Map Identity endpoints with custom path prefix if desired
 app.MapIdentityApi<IdentityUser>();
+app.MapControllers();
 
 app.UseRequestLogging();
-
-app.MapControllers();
 
 Log.Information("Web API application started successfully");
 Log.Information("Web API listening on http://localhost:5000 and https://localhost:5001");

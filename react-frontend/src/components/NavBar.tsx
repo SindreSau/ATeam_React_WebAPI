@@ -1,4 +1,6 @@
 import React from 'react'
+import {NavLink} from "react-router-dom";
+import NokkelhullLogo from "./NokkelhullLogo";
 
 type Props = {}
 
@@ -6,11 +8,13 @@ const NavBar = (props: Props) => {
   return (
 <nav className="navbar navbar-expand-lg">
     <div className="container-md">
-        <button className="navbar-toggler" type="button" data-bs-toggle="collapse" 
+        <button className="navbar-toggler" type="button" data-bs-toggle="collapse"
         data-bs-target="#navbarExample" aria-controls="navbarExample" aria-expanded="false" aria-label="Toggle navigation">
             <span className="navbar-toggler-icon"></span>
         </button>
-            <a className="navbar-brand" href="#"><img src="./logo192.png" width="36" /></a>
+            <NavLink to="/" className="navbar-brand">
+                <NokkelhullLogo />
+            </NavLink>
             <div className="collapse navbar-collapse" id="navbarExample">
                 <ul className="navbar-nav me-auto mb-0">
                     <li className="nav-item">

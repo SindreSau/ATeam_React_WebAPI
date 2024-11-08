@@ -16,7 +16,7 @@ export const FoodProductCard: React.FC<FoodProductCardProps> = ({ foodProduct, o
                 <h2 className="card-title h3 mb-0">{foodProduct.productName}</h2>
                 {foodProduct.nokkelhullQualified && (
                     <img 
-                        src="/nokkelhullet.png" 
+                        src="/favicon.png"
                         alt="Nøkkelhull" 
                         className="ms-2" 
                         style={{width: '24px', height: '24px'}} 

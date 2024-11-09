@@ -27,7 +27,7 @@ const Navbar: React.FC = () => {
     const handleLogout = async () => {
         try {
             await logout();
-            navigate('/login'); // Redirect to login after logout
+            navigate('/'); // Redirect to home after logout
         } catch (error) {
             console.error('Logout failed:', error);
         }

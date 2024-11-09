@@ -152,8 +152,6 @@ app.UseRouting();
 app.UseAuthentication();
 app.UseAuthorization();
 
-// Map Identity endpoints with custom path prefix if desired
-app.MapIdentityApi<IdentityUser>();
 app.MapControllers();
 
 app.UseRequestLogging();

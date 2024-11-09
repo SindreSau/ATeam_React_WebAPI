@@ -1,7 +1,23 @@
 // src/types/auth.ts
+export interface ErrorResponse {
+    error: string;
+}
+
+export interface LoginResponse {
+    message: string;
+    email: string;
+    role: string;
+}
+
 export interface LoginRequest {
     email: string;
     password: string;
+}
+
+export interface RegisterResponse {
+    message: string;
+    email: string;
+    role: string;
 }
 
 export interface RegisterRequest {
@@ -9,14 +25,9 @@ export interface RegisterRequest {
     password: string;
 }
 
-export interface AuthResponse {
-    token: string;
-    userId: string;
-    email: string;
-}
+export type UserRole = "Admin" | "Vendor";
 
-export interface User {
-    id: string;
+export interface AuthUserInfo {
     email: string;
-    role?: string;
+    role: UserRole;
 }

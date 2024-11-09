@@ -1,62 +1,16 @@
-import React, {useEffect, useState} from 'react';
-import { NavLink } from 'react-router-dom';
-import { useAuth } from '../hooks/useAuth';
-import NokkelhullLogo from './NokkelhullLogo';
+// src/components/NavBar.tsx
+import React, { useEffect, useState } from 'react';
+import { NavLink, useNavigate } from 'react-router-dom';
+import { useAuthContext } from '../contexts/AuthContext';
+import Spinner from "./Spinner";
 
-interface NavItem {
-    path: string;
-    title: string;
-    roleRequired?: string[];
-    className?: string;
-}
-
-const navLinks: NavItem[] = [
-    {
-        path: '/',
-        title: 'Home',
-        className: 'mx-4'
-    },
-    {
-        path: '/admin',
-        title: 'Products',
-        roleRequired: ['Admin']
-    },
-    {
-        path: '/vendor',
-        title: 'Products',
-        roleRequired: ['Vendor']
-    }
-];
-
-const authLinks: NavItem[] = [
-    {
-        path: '/account',
-        title: 'Account'
-    },
-    {
-        path: '/logout',
-        title: 'Logout'
-    }
-];
-
-const guestLinks: NavItem[] = [
-    {
-        path: '/register',
-        title: 'Register'
-    },
-    {
-        path: '/login',
-        title: 'Login'
-    }
-];
-
-const NavBar: React.FC = () => {
-    const { isAuthenticated, user } = useAuth();
+const Navbar: React.FC = () => {
+    const { isAuthenticated, user, isLoading, logout } = useAuthContext();
+    const navigate = useNavigate();
     const [theme, setTheme] = useState<'light' | 'dark'>(
         localStorage.getItem('theme') as 'light' | 'dark' || 'light'
     );
 
-    // Initialize theme on component mount
     useEffect(() => {
         const savedTheme = localStorage.getItem('theme') as 'light' | 'dark' || 'light';
         document.documentElement.setAttribute('data-bs-theme', savedTheme);
@@ -70,23 +24,13 @@ const NavBar: React.FC = () => {
         localStorage.setItem('theme', newTheme);
     };
 
-    const renderNavLink = (item: NavItem) => {
-        if (item.roleRequired && (!user?.role || !item.roleRequired.includes(user.role))) {
-            return null;
+    const handleLogout = async () => {
+        try {
+            await logout();
+            navigate('/'); // Redirect to home after logout
+        } catch (error) {
+            console.error('Logout failed:', error);
         }
-
-        return (
-            <li className="nav-item" key={item.path}>
-                <NavLink
-                    to={item.path}
-                    className={({ isActive }) =>
-                        `nav-link${isActive ? ' active' : ''}${item.className ? ` ${item.className}` : ''}`
-                    }
-                >
-                    {item.title}
-                </NavLink>
-            </li>
-        );
     };
 
     return (
@@ -94,7 +38,12 @@ const NavBar: React.FC = () => {
             <nav className="navbar navbar-expand-sm border-bottom py-2">
                 <div className="container-md container-fluid">
                     <NavLink to="/" className="navbar-brand d-flex align-items-center">
-                        <NokkelhullLogo />
+                        <img
+                            src="/assets/images/nokkellhulllogo.svg"
+                            alt="Nøkkelhollet"
+                            className="me-2"
+                            style={{ height: '40px', width: 'auto' }}
+                        />
                     </NavLink>
 
                     <button
@@ -108,7 +57,26 @@ const NavBar: React.FC = () => {
 
                     <div className="navbar-collapse collapse d-sm-inline-flex justify-content-between">
                         <ul className="navbar-nav flex-grow-1">
-                            {navLinks.map(renderNavLink)}
+                            <li className="nav-item">
+                                <NavLink to="/" className={({ isActive }) =>
+                                    `nav-link mx-4${isActive ? ' active' : ''}`
+                                }>
+                                    Home
+                                </NavLink>
+                            </li>
+                            {/* Add protected navigation items */}
+                            {isAuthenticated && (
+                                <li className="nav-item">
+                                    <NavLink
+                                        to="/products"
+                                        className={({ isActive }) =>
+                                            `nav-link mx-4${isActive ? ' active' : ''}`
+                                        }
+                                    >
+                                        Products
+                                    </NavLink>
+                                </li>
+                            )}
                         </ul>
 
                         <div className="nav-item mx-2">
@@ -118,13 +86,21 @@ const NavBar: React.FC = () => {
                         </div>
 
                         <ul className="navbar-nav">
-                            {isAuthenticated ? (
+                            {isLoading ? (
+                                <li className="nav-item">
+                                    <Spinner size="sm"/>
+                                </li>
+                            ) : isAuthenticated ? (
                                 <>
-                                    {authLinks.map(renderNavLink)}
+                                    <li className="nav-item">
+                                    <span className="nav-link">
+                                        Welcome, {user?.email}
+                                    </span>
+                                    </li>
                                     <li className="nav-item">
                                         <button
-                                            onClick={() => {/* Add logout handler */}}
-                                            className="nav-link btn btn-link"
+                                            onClick={handleLogout}
+                                            className="btn btn-link nav-link"
                                         >
                                             Logout
                                         </button>
@@ -132,7 +108,16 @@ const NavBar: React.FC = () => {
                                 </>
                             ) : (
                                 <>
-                                    {guestLinks.map(renderNavLink)}
+                                    <li className="nav-item">
+                                        <NavLink to="/register" className="nav-link">
+                                            Register
+                                        </NavLink>
+                                    </li>
+                                    <li className="nav-item">
+                                        <NavLink to="/login" className="nav-link">
+                                            Login
+                                        </NavLink>
+                                    </li>
                                 </>
                             )}
                         </ul>
@@ -140,7 +125,7 @@ const NavBar: React.FC = () => {
                 </div>
             </nav>
         </header>
-    );
+);
 };
 
-export default NavBar;
+export default Navbar;

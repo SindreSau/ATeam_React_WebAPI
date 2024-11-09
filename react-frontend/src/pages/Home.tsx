@@ -1,57 +1,46 @@
+// src/components/Home.tsx
+
 import {Link} from "react-router-dom";
-import {useAuth} from "../hooks/useAuth";
+import {useAuthContext} from "../contexts/AuthContext";
+import React from "react";
+import Spinner from "../components/Spinner";
 
 const Home = () => {
-    const { isAuthenticated, user, isLoading } = useAuth();
+    const { user, isLoading } = useAuthContext();
 
     if (isLoading) {
-        return (
-            <div className="container mx-auto mt-10">
-                <p>Loading...</p>
-            </div>
-        );
+        return <Spinner fullPage />;
     }
 
     return (
         <div className="container mx-auto mt-10">
             <h1 className="text-4xl font-bold mb-6">Welcome to Food App</h1>
 
-            {isAuthenticated ? (
-                <>
-                    {user?.role === 'Admin' && (
-                        <div className="mb-4">
-                            <p className="mb-2">You are signed in as an administrator.</p>
-                            <Link
-                                to="/admin/dashboard"
-                                className="btn btn-primary"
-                            >
-                                Go to Dashboard
-                            </Link>
-                        </div>
-                    )}
-                    {user?.role === 'Vendor' && (
-                        <div className="mb-4">
-                            <p className="mb-2">Welcome back, vendor!</p>
-                            <Link
-                                to="/vendor/products"
-                                className="btn btn-primary"
-                            >
-                                Manage Your Products
-                            </Link>
-                        </div>
-                    )}
-                </>
-            ) : (
+            {!user ?
                 <div className="mb-4">
                     <p className="mb-2">Please sign in to access the application.</p>
-                    <Link
-                        to="/login"
-                        className="btn btn-primary"
-                    >
+                    <Link to="/login" className="btn btn-primary">
                         Sign In
                     </Link>
                 </div>
-            )}
+                : (
+                    <>
+                        {user.role === 'Admin' &&
+                            <div className="mb-4">
+                                <p className="mb-2">You are signed in as an administrator.</p>
+                            </div>
+                        }
+                        {user.role === 'Vendor' &&
+                            <div className="mb-4">
+                                <p className="mb-2">Welcome, vendor!</p>
+                            </div>
+                        }
+                        <Link to="/products" className="btn btn-primary">
+                            Manage Products
+                        </Link>
+                    </>
+                )
+            }
 
             <div className="mt-8">
                 <h2 className="text-2xl font-bold mb-4">About Our Platform</h2>

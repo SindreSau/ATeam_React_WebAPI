@@ -1,3 +1,5 @@
+// Configuration/IdentityConfig.cs
+
 using ATeam_React_WebAPI.Data;
 using Microsoft.AspNetCore.Identity;
 
@@ -32,6 +34,36 @@ public static class IdentityConfig
             .AddEntityFrameworkStores<ApplicationDbContext>()
             .AddDefaultTokenProviders()
             .AddApiEndpoints();
+
+        // Configure cookie settings
+        services.ConfigureApplicationCookie(options =>
+        {
+            options.Cookie.HttpOnly = true;
+            options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
+            options.Cookie.SameSite = SameSiteMode.Lax;
+
+            // Set cookie expiration
+            options.ExpireTimeSpan = TimeSpan.FromDays(1);
+            options.SlidingExpiration = true;
+
+            // These paths should match your frontend routes
+            options.LoginPath = "/login";
+            options.AccessDeniedPath = "/forbidden";
+            options.LogoutPath = "/logout";
+
+            // Handle unauthorized API requests
+            options.Events.OnRedirectToLogin = context =>
+            {
+                context.Response.StatusCode = StatusCodes.Status401Unauthorized;
+                return Task.CompletedTask;
+            };
+
+            options.Events.OnRedirectToAccessDenied = context =>
+            {
+                context.Response.StatusCode = StatusCodes.Status403Forbidden;
+                return Task.CompletedTask;
+            };
+        });
 
         return services;
     }

@@ -1,190 +1,242 @@
-// src/components/AdminProductList.tsx
-import React, { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
+import { useQuery } from '@tanstack/react-query';
+import { productsApi } from '../api/products';
 import { FoodProduct } from '../types/foodProduct';
-import { fetchFoodProducts, updateFoodProduct } from '../services/foodProductService';
-import { FoodProductCard } from './FoodProductCard';
 import { SearchForm } from './SearchForm';
+import { FoodProductCard } from './FoodProductCard';
+import PaginationController from './PaginationController';
+import Spinner from './Spinner';
 import { CardEditModal } from './CardEditModal';
-import PaginationController from "./PaginationController";
-import Spinner from "./Spinner";
-import usePersistedState from "../hooks/usePersistedState";
+import { NokkelhullFilter } from './NokkelHullFilter';
+import { ProductSort } from './ProductSort';
+import usePersistedState from '../hooks/usePersistedState';
+import ConfirmationModal from "./ConfirmationModal";
+import { useProductMutations } from "../hooks/useProductMutations";
 
 export const AdminProductList = () => {
     const [searchParams, setSearchParams] = useSearchParams();
-    const [foodProducts, setFoodProducts] = useState<FoodProduct[]>([]);
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState<string | null>(null);
-    const [totalCount, setTotalCount] = useState(0);
-    const [modalOpen, setModalOpen] = useState(false);
-    const [currentFoodProductCard, setCurrentFoodProductCard] = useState<FoodProduct | null>(null);
     const pageSizeOptions = [2, 5, 10, 15];
 
-    // Pagination state
-    const [currentPage, setCurrentPage] = useState(() =>
-        Number(searchParams.get('page')) || 1
-    );
+    // Modal states
+    const [editModalProduct, setEditModalProduct] = useState<FoodProduct | null>(null);
+    const [deleteModalProduct, setDeleteModalProduct] = useState<FoodProduct | null>(null);
+
+    // Use the mutations hook
+    const { updateMutation, deleteMutation } = useProductMutations();
+
+    // Get URL parameters
+    const currentPage = Number(searchParams.get('page')) || 1;
+    const orderBy = searchParams.get('orderBy') || 'createdat_desc';
+    const nokkelhullParam = searchParams.get('nokkelhull');
+    const nokkelhull: boolean | undefined = nokkelhullParam ? nokkelhullParam === 'true' : undefined;
+
+    const urlPageSize = Number(searchParams.get('pageSize'));
+    const validUrlPageSize = pageSizeOptions.includes(urlPageSize) ? urlPageSize : null;
 
     const [pageSize, setPageSize] = usePersistedState(
-        'preferredPageSize',
-        pageSizeOptions[0]
+        'adminPreferredPageSize',
+        pageSizeOptions[0],
+        validUrlPageSize
     );
 
-    // Effect to sync persisted pageSize state with URL
-    useEffect(() => {
-        const urlPageSize = Number(searchParams.get('pageSize'));
-        if (urlPageSize && pageSizeOptions.includes(urlPageSize)) {
-            setPageSize(urlPageSize);
-        } else if (pageSize !== pageSizeOptions[0]) {
-            // If no valid URL pageSize, update URL with current pageSize
-            setSearchParams(prev => {
-                const newParams = new URLSearchParams(prev);
-                newParams.set('pageSize', pageSize.toString());
-                return newParams;
-            });
-        }
-    }, [searchParams, pageSize, setPageSize, setSearchParams, pageSizeOptions]);
+    // Products query
+    const {
+        data,
+        isLoading,
+        isError,
+        error
+    } = useQuery({
+        queryKey: ['adminProducts', {
+            pageNumber: currentPage,
+            pageSize,
+            searchTerm: searchParams.get('search') || '',
+            orderBy,
+            nokkelhull
+        }],
+        queryFn: () => {
+            const params = {
+                pageNumber: currentPage,
+                pageSize,
+                searchTerm: searchParams.get('search') || '',
+                orderBy,
+                nokkelhull
+            };
+            return productsApi.getAdminProducts(params);
+        },
+        select: (response) => response.data
+    });
 
-    const openModal = (foodProductCard: FoodProduct) => {
-        setCurrentFoodProductCard(foodProductCard);
-        setModalOpen(true);
-    };
-
-    const closeModal = () => {
-        setModalOpen(false);
-        setCurrentFoodProductCard(null);
-    };
-
-    const handleUpdate = async (updatedProduct: FoodProduct) => {
+    const handleUpdateProduct = async (updatedProduct: FoodProduct) => {
         try {
-            await updateFoodProduct(updatedProduct);
-            setFoodProducts(prev =>
-                prev.map(p => p.productId === updatedProduct.productId ? updatedProduct : p)
-            );
+            const updateDto = {
+                productName: updatedProduct.productName,
+                energyKcal: updatedProduct.energyKcal,
+                fat: updatedProduct.fat,
+                carbohydrates: updatedProduct.carbohydrates,
+                protein: updatedProduct.protein,
+                fiber: updatedProduct.fiber,
+                salt: updatedProduct.salt,
+                foodCategoryId: updatedProduct.foodCategoryId
+            };
+
+            await updateMutation.mutateAsync({
+                id: updatedProduct.productId,
+                product: updateDto
+            });
+            setEditModalProduct(null);
         } catch (error) {
-            setError('Error updating food product');
+            console.error('Failed to update product:', error);
         }
     };
 
-    const handleDelete = async (productId: number) => {
+    const handleDeleteConfirm = async () => {
+        if (!deleteModalProduct) return;
+
         try {
-            const response = await fetch(`/api/foodproducts/${productId}`, {
-                method: 'DELETE'
-            });
-            if (response.ok) {
-                setFoodProducts(products =>
-                    products.filter(p => p.productId !== productId)
-                );
-                setTotalCount(prev => prev - 1);
-            }
+            await deleteMutation.mutateAsync(deleteModalProduct.productId);
+            setDeleteModalProduct(null);
         } catch (error) {
-            setError('Error deleting food product');
+            console.error('Failed to delete product:', error);
         }
+    };
+
+    const updateSearchParams = (updates: Record<string, string>) => {
+        setSearchParams(prev => {
+            const newParams = new URLSearchParams(prev);
+            Object.entries(updates).forEach(([key, value]) => {
+                if (value === undefined || value === null) {
+                    newParams.delete(key);
+                } else {
+                    newParams.set(key, value);
+                }
+            });
+            return newParams;
+        });
     };
 
     const handlePageChange = (page: number) => {
-        setCurrentPage(page);
-        setSearchParams(prev => {
-            const newParams = new URLSearchParams(prev);
-            newParams.set('page', page.toString());
-            return newParams;
-        });
+        updateSearchParams({ page: page.toString() });
     };
 
     const handlePageSizeChange = (newPageSize: number) => {
-        setPageSize(newPageSize);
-        setCurrentPage(1);
-        setSearchParams(prev => {
-            const newParams = new URLSearchParams(prev);
-            newParams.set('pageSize', newPageSize.toString());
-            newParams.set('page', '1');
-            return newParams;
+        updateSearchParams({
+            pageSize: newPageSize.toString(),
+            page: '1'
         });
+        setPageSize(newPageSize);
     };
 
     const handleSearch = (search: string) => {
-        setCurrentPage(1); // Reset to first page on new search
-        setSearchParams({
+        updateSearchParams({
             search,
-            page: '1',
-            pageSize: pageSize.toString()
+            page: '1'
         });
     };
 
-    useEffect(() => {
-        const loadProducts = async () => {
-            try {
-                setLoading(true);
-                const searchTerm = searchParams.get('search') || '';
-                const response = await fetchFoodProducts(searchTerm, {
-                    pageNumber: currentPage,
-                    pageSize: pageSize
-                });
-                setFoodProducts(response.items);
-                setTotalCount(response.totalCount);
-            } catch (err) {
-                setError('Failed to load food products');
-                console.error(err);
-            } finally {
-                setLoading(false);
-            }
-        };
+    const handleSort = (value: string) => {
+        updateSearchParams({
+            orderBy: value,
+            page: '1'
+        });
+    };
 
-        loadProducts();
-    }, [searchParams, currentPage, pageSize]);
+    const handleNokkelhullFilter = (value: boolean | null) => {
+        if (value === null) {
+            setSearchParams(prev => {
+                const newParams = new URLSearchParams(prev);
+                newParams.delete('nokkelhull');
+                newParams.set('page', '1');
+                return newParams;
+            });
+        } else {
+            setSearchParams(prev => {
+                const newParams = new URLSearchParams(prev);
+                newParams.set('nokkelhull', value.toString());
+                newParams.set('page', '1');
+                return newParams;
+            });
+        }
+    };
 
-    if (loading) {
-        return <Spinner />;
-    }
-
-    if (error) {
-        // TODO: Replace this with toast or alert component
-        return <div>Error: {error}</div>;
-    }
+    if (isLoading) return <Spinner />;
+    if (isError) return <div className="alert alert-danger">Error: {(error as Error).message}</div>;
 
     return (
-        <div className="container">
-            <SearchForm
-                initialSearch={searchParams.get('search') || ''}
-                onSearch={handleSearch}
-            />
+        <div className="container py-4">
+            <div className="d-flex justify-content-between align-items-center mb-4">
+                <h1 className="h3">All Products</h1>
 
-            <div className="row">
-                {foodProducts.map(product => (
-                    <div key={product.productId} className="col-md-4 mb-4">
+                <div className="d-flex gap-3 align-items-center">
+                    <ProductSort value={orderBy} onChange={handleSort} />
+                    <NokkelhullFilter
+                        value={nokkelhull === undefined ? null : nokkelhull}
+                        onChange={handleNokkelhullFilter}
+                    />
+                </div>
+            </div>
+
+            <div className="mb-4">
+                <SearchForm
+                    initialSearch={searchParams.get('search') || ''}
+                    onSearch={handleSearch}
+                />
+            </div>
+
+            <div className="row g-4">
+                {data?.items.map((product: FoodProduct) => (
+                    <div key={product.productId} className="col-12 col-sm-6 col-lg-4">
                         <FoodProductCard
                             foodProduct={product}
-                            onEdit={() => openModal(product)}
-                            onDelete={handleDelete}
+                            onEdit={() => setEditModalProduct(product)}
+                            onDelete={() => setDeleteModalProduct(product)}
+                            isDeleting={deleteMutation.isPending && deleteModalProduct?.productId === product.productId}
                         />
                     </div>
                 ))}
             </div>
 
-            {foodProducts.length === 0 && (
+            {data?.items.length === 0 && (
                 <div className="text-center my-4">No products found</div>
             )}
 
-            {totalCount > 0 && (
-                <PaginationController
-                    currentPage={currentPage}
-                    totalPages={Math.ceil(totalCount / pageSize)}
-                    pageSize={pageSize}
-                    totalItems={totalCount}
-                    onPageChange={handlePageChange}
-                    onPageSizeChange={handlePageSizeChange}
-                    pageSizeOptions={pageSizeOptions}
+            <div className="d-flex justify-content-between align-items-center mt-4">
+                {data && data.totalCount > 0 && (
+                    <PaginationController
+                        currentPage={currentPage}
+                        totalPages={data.totalPages}
+                        pageSize={pageSize}
+                        totalItems={data.totalCount}
+                        onPageChange={handlePageChange}
+                        onPageSizeChange={handlePageSizeChange}
+                        pageSizeOptions={pageSizeOptions}
+                    />
+                )}
+
+                <div className="text-muted">
+                    Total items: {data?.totalCount || 0}
+                </div>
+            </div>
+
+            {editModalProduct && (
+                <CardEditModal
+                    foodProduct={editModalProduct}
+                    show={!!editModalProduct}
+                    onClose={() => setEditModalProduct(null)}
+                    onSave={handleUpdateProduct}
                 />
             )}
 
-            {modalOpen && currentFoodProductCard && (
-                <CardEditModal
-                    foodProduct={currentFoodProductCard}
-                    show={modalOpen}
-                    onClose={closeModal}
-                    onSave={handleUpdate}
-                />
-            )}
+            <ConfirmationModal
+                isOpen={!!deleteModalProduct}
+                onClose={() => setDeleteModalProduct(null)}
+                onConfirm={handleDeleteConfirm}
+                title="Delete Product"
+                message={`Are you sure you want to delete "${deleteModalProduct?.productName}"? This action cannot be undone.`}
+                confirmText="Delete"
+                primaryButtonVariant="danger"
+                isLoading={deleteMutation.isPending}
+            />
         </div>
     );
 };

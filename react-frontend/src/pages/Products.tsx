@@ -14,8 +14,7 @@ const Products = () => {
                 // load admin or vendor products based on user.role
                 <>
                     {user?.role === 'Admin' && (
-                        // <AdminProductList/>
-                        <h1>Yo</h1>
+                        <AdminProductList/>
                     )}
                     {user?.role === 'Vendor' && (
                         <VendorProductList />

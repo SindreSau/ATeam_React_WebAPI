@@ -1,4 +1,4 @@
-import { FoodProduct } from '../types/foodProduct';
+import { FoodProduct, FoodProductCreate } from '../types/foodProduct';
 import { PaginatedResponse } from '../types/common';
 
 export const fetchFoodProducts = async (searchTerm: string, pagination: { pageNumber: number, pageSize: number }
@@ -46,7 +46,7 @@ export const updateFoodProduct = async (foodProduct: FoodProduct): Promise<FoodP
         protein: foodProduct.protein,
         fiber: foodProduct.fiber,
         salt: foodProduct.salt,
-        foodCategoryId: foodProduct.categoryId // You might need to add this to your FoodProduct type
+        foodCategoryId: foodProduct.foodCategoryId // where do we get this from?
     };
 
     const response = await fetch(`https://localhost:5001/api/vendor/${foodProduct.productId}`, {

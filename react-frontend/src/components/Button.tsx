@@ -1,7 +1,7 @@
 import {ButtonHTMLAttributes} from "react";
 import Spinner from "./Spinner";
 
-type ButtonVariant =
+export type ButtonVariant =
     'primary'
     | 'secondary'
     | 'success'

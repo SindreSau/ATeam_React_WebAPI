@@ -206,14 +206,35 @@ namespace ATeam_React_WebAPI.Repositories
         // Asynchronously updates an existing food product in the database
         public async Task<FoodProduct> UpdateFoodProductAsync(FoodProduct foodProduct)
         {
-            var existingFoodProduct = await _context.FoodProducts.FindAsync(foodProduct.FoodProductId);
+            var existingFoodProduct = await _context.FoodProducts
+                .Include(fp => fp.FoodCategory)
+                .Include(fp => fp.CreatedBy)
+                .FirstOrDefaultAsync(fp => fp.FoodProductId == foodProduct.FoodProductId);
+
             if (existingFoodProduct == null)
             {
-                throw new KeyNotFoundException($"FoodCategory with ID {foodProduct.FoodProductId} not found. Could not update.");
+                throw new KeyNotFoundException($"FoodProduct with ID {foodProduct.FoodProductId} not found. Could not update.");
             }
 
+            // Update all properties
             existingFoodProduct.ProductName = foodProduct.ProductName;
-            _context.FoodProducts.Update(existingFoodProduct);
+            existingFoodProduct.EnergyKcal = foodProduct.EnergyKcal;
+            existingFoodProduct.Fat = foodProduct.Fat;
+            existingFoodProduct.Carbohydrates = foodProduct.Carbohydrates;
+            existingFoodProduct.Protein = foodProduct.Protein;
+            existingFoodProduct.Fiber = foodProduct.Fiber;
+            existingFoodProduct.Salt = foodProduct.Salt;
+            existingFoodProduct.FoodCategoryId = foodProduct.FoodCategoryId;
+            existingFoodProduct.NokkelhullQualified = NutritionCalculatorService.IsNokkelhullQualified(
+                (float)foodProduct.EnergyKcal,
+                (float)foodProduct.Protein,
+                (float)foodProduct.Carbohydrates,
+                (float)foodProduct.Fat,
+                (float)foodProduct.Fiber,
+                (float)foodProduct.Salt
+            );
+            existingFoodProduct.UpdatedAt = DateTime.UtcNow;
+
             await _context.SaveChangesAsync();
             return existingFoodProduct;
         }

@@ -99,6 +99,7 @@ public class VendorController : ControllerBase
         NokkelhullQualified = fp.NokkelhullQualified,
         CategoryName = fp.FoodCategory?.CategoryName ?? "Unknown",
         CreatedByUsername = fp.CreatedBy?.UserName ?? "Unknown",
+        FoodCategoryId = fp.FoodCategoryId
       }).ToList();
 
       // Created Paginated Response for return
@@ -228,7 +229,6 @@ public class VendorController : ControllerBase
   [HttpPut("{id}")]
   public async Task<ActionResult<FoodProductDTO>> UpdateProduct(int id, [FromBody] FoodProductCreateUpdateDTO updateDto)
   {
-    // Validate modle:
     if (!ModelState.IsValid)
     {
       return BadRequest(ModelState);
@@ -236,10 +236,9 @@ public class VendorController : ControllerBase
 
     try
     {
-      // Check Product Exists, Ownership and Id and get product
       var existingProduct = await VerifyProductOwnership(id);
 
-      // Update the existing product with new values
+      // Update using the validated DTO data
       existingProduct.ProductName = updateDto.ProductName;
       existingProduct.EnergyKcal = updateDto.EnergyKcal;
       existingProduct.Fat = updateDto.Fat;
@@ -250,10 +249,9 @@ public class VendorController : ControllerBase
       existingProduct.FoodCategoryId = updateDto.FoodCategoryId;
       existingProduct.UpdatedAt = DateTime.UtcNow;
 
-      // Save updates 
       var updatedProduct = await _foodProductRepository.UpdateFoodProductAsync(existingProduct);
 
-      // Map to DTO
+      // Map back to response DTO
       var resultDto = new FoodProductDTO
       {
         ProductId = updatedProduct.FoodProductId,
@@ -265,6 +263,7 @@ public class VendorController : ControllerBase
         Fiber = updatedProduct.Fiber,
         Salt = updatedProduct.Salt,
         NokkelhullQualified = updatedProduct.NokkelhullQualified,
+        FoodCategoryId = updatedProduct.FoodCategoryId,
         CategoryName = updatedProduct.FoodCategory?.CategoryName ?? "Unknown",
         CreatedByUsername = updatedProduct.CreatedBy?.UserName ?? "Unknown"
       };
@@ -275,7 +274,6 @@ public class VendorController : ControllerBase
     {
       return Unauthorized();
     }
-    
     catch (KeyNotFoundException)
     {
       return NotFound();

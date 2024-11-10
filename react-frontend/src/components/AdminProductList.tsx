@@ -25,13 +25,9 @@ export const AdminProductList = () => {
         Number(searchParams.get('page')) || 1
     );
 
-    const urlPageSize = Number(searchParams.get('pageSize'));
-    const validUrlPageSize = pageSizeOptions.includes(urlPageSize) ? urlPageSize : null;
-
     const [pageSize, setPageSize] = usePersistedState(
         'preferredPageSize',
-        pageSizeOptions[0],
-        validUrlPageSize
+        pageSizeOptions[0]
     );
 
     // Effect to sync persisted pageSize state with URL

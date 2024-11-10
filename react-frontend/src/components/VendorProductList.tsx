@@ -2,30 +2,31 @@ import { useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { productsApi } from '../api/products';
-import { FoodProduct, FoodProductCreate } from '../types/foodProduct';
+import { FoodProduct, FoodProductCreateUpdate } from '../types/foodProduct';
 import { SearchForm } from './SearchForm';
 import { FoodProductCard } from './FoodProductCard';
 import PaginationController from './PaginationController';
 import Spinner from './Spinner';
 import { Button } from './Button';
 import { CreateFoodProductModal } from './CreateFoodProductModal';
+import { CardEditModal } from './CardEditModal';
 import { NokkelhullFilter } from './NokkelHullFilter';
 import { ProductSort } from './ProductSort';
 import usePersistedState from '../hooks/usePersistedState';
-
-interface ProductQueryParams {
-    pageNumber: number;
-    pageSize: number;
-    searchTerm: string;
-    orderBy: string;
-    nokkelhull?: boolean;
-}
+import ConfirmationModal from "./ConfirmationModal";
+import {useProductMutations} from "../hooks/useProductMutations";
 
 export const VendorProductList = () => {
     const [searchParams, setSearchParams] = useSearchParams();
     const pageSizeOptions = [2, 5, 10, 15];
-    const queryClient = useQueryClient();
+
+    // Modal states
     const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+    const [editModalProduct, setEditModalProduct] = useState<FoodProduct | null>(null);
+    const [deleteModalProduct, setDeleteModalProduct] = useState<FoodProduct | null>(null);
+
+    // Use the mutations hook
+    const { createMutation, updateMutation, deleteMutation } = useProductMutations();
 
     // Get URL parameters
     const currentPage = Number(searchParams.get('page')) || 1;
@@ -42,17 +43,7 @@ export const VendorProductList = () => {
         validUrlPageSize
     );
 
-    // Create mutation
-    const createMutation = useMutation({
-        mutationFn: (newProduct: FoodProductCreate) =>
-            productsApi.createProduct(newProduct),
-        onSuccess: () => {
-            queryClient.invalidateQueries({ queryKey: ['vendorProducts'] });
-            setIsCreateModalOpen(false);
-        }
-    });
-
-    // Products query with all parameters
+    // Products query
     const {
         data,
         isLoading,
@@ -67,7 +58,7 @@ export const VendorProductList = () => {
             nokkelhull
         }],
         queryFn: () => {
-            const params: ProductQueryParams = {
+            const params = {
                 pageNumber: currentPage,
                 pageSize,
                 searchTerm: searchParams.get('search') || '',
@@ -79,11 +70,47 @@ export const VendorProductList = () => {
         select: (response) => response.data
     });
 
-    const handleCreateProduct = async (data: FoodProductCreate) => {
+    // Handlers
+    const handleCreateProduct = async (data: FoodProductCreateUpdate) => {
         try {
             await createMutation.mutateAsync(data);
+            setIsCreateModalOpen(false);
         } catch (error) {
             console.error('Failed to create product:', error);
+        }
+    };
+
+    const handleUpdateProduct = async (updatedProduct: FoodProduct) => {
+        try {
+            const updateDto: FoodProductCreateUpdate = {
+                productName: updatedProduct.productName,
+                energyKcal: updatedProduct.energyKcal,
+                fat: updatedProduct.fat,
+                carbohydrates: updatedProduct.carbohydrates,
+                protein: updatedProduct.protein,
+                fiber: updatedProduct.fiber,
+                salt: updatedProduct.salt,
+                foodCategoryId: updatedProduct.foodCategoryId
+            };
+
+            await updateMutation.mutateAsync({
+                id: updatedProduct.productId,
+                product: updateDto
+            });
+            setEditModalProduct(null);
+        } catch (error) {
+            console.error('Failed to update product:', error);
+        }
+    };
+
+    const handleDeleteConfirm = async () => {
+        if (!deleteModalProduct) return;
+
+        try {
+            await deleteMutation.mutateAsync(deleteModalProduct.productId);
+            setDeleteModalProduct(null);
+        } catch (error) {
+            console.error('Failed to delete product:', error);
         }
     };
 
@@ -176,13 +203,15 @@ export const VendorProductList = () => {
                 />
             </div>
 
+            {/* Food Products grid */}
             <div className="row g-4">
                 {data?.items.map((product: FoodProduct) => (
-                    <div key={product.productId} className="col-12 col-md-6 col-lg-4">
+                    <div key={product.productId} className="col-12 col-sm-6 col-lg-4">
                         <FoodProductCard
                             foodProduct={product}
-                            onEdit={() => {/* TODO: Implement edit functionality */}}
-                            onDelete={() => {/* TODO: Implement delete functionality */}}
+                            onEdit={() => setEditModalProduct(product)}
+                            onDelete={() => setDeleteModalProduct(product)}
+                            isDeleting={deleteMutation.isPending && deleteModalProduct?.productId === product.productId}
                         />
                     </div>
                 ))}
@@ -210,12 +239,34 @@ export const VendorProductList = () => {
                 </div>
             </div>
 
+            {/* Modals */}
             <CreateFoodProductModal
                 isOpen={isCreateModalOpen}
                 onClose={() => setIsCreateModalOpen(false)}
                 onSubmit={handleCreateProduct}
                 isLoading={createMutation.isPending}
             />
+
+            {editModalProduct && (
+                <CardEditModal
+                    foodProduct={editModalProduct}
+                    show={!!editModalProduct}
+                    onClose={() => setEditModalProduct(null)}
+                    onSave={handleUpdateProduct}
+                />
+            )}
+
+            {/* ConfirmationModal for deletion */}
+            <ConfirmationModal
+                isOpen={!!deleteModalProduct}
+                onClose={() => setDeleteModalProduct(null)}
+                onConfirm={handleDeleteConfirm}
+                title="Delete Product"
+                message={`Are you sure you want to delete "${deleteModalProduct?.productName}"? This action cannot be undone.`}
+                confirmText="Delete"
+                primaryButtonVariant="danger"
+                isLoading={deleteMutation.isPending}
+            />
         </div>
     );
-}
+};

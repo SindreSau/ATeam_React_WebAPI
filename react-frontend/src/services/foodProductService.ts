@@ -32,7 +32,10 @@ export const fetchFoodProducts = async (searchTerm: string, pagination: { pageNu
         items: data.items || [],
         totalCount: data.totalCount || 0,
         pageNumber: pagination.pageNumber,
-        pageSize: pagination.pageSize
+        pageSize: pagination.pageSize,
+        totalPages: Math.ceil(data.totalCount / pagination.pageSize),
+        hasPreviousPage: pagination.pageNumber > 1,
+        hasNextPage: pagination.pageNumber < Math.ceil(data.totalCount / pagination.pageSize)
     };
 };
 

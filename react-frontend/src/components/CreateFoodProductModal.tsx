@@ -1,15 +1,16 @@
 import { useState, useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { FoodProductCreate } from '../types/foodProduct';
+import { FoodProductCreateUpdate } from '../types/foodProduct';
 import { categoriesApi } from '../api/categories';
 import { Button } from './Button';
+import {Select} from "./Select";
 
-type FormErrors = Partial<Record<keyof FoodProductCreate, string>>;
+type FormErrors = Partial<Record<keyof FoodProductCreateUpdate, string>>;
 
 type Props = {
     isOpen: boolean;
     onClose: () => void;
-    onSubmit: (data: FoodProductCreate) => Promise<void>;
+    onSubmit: (data: FoodProductCreateUpdate) => Promise<void>;
     isLoading: boolean;
 };
 
@@ -19,7 +20,7 @@ export function CreateFoodProductModal({
                                            onSubmit,
                                            isLoading
                                        }: Props) {
-    const [formData, setFormData] = useState<FoodProductCreate>({
+    const [formData, setFormData] = useState<FoodProductCreateUpdate>({
         productName: '',
         energyKcal: 0,
         fat: 0,
@@ -32,19 +33,22 @@ export function CreateFoodProductModal({
 
     const [errors, setErrors] = useState<FormErrors>({});
 
-    // Fetch categories
     const { data: categories = [] } = useQuery({
         queryKey: ['categories'],
         queryFn: async () => {
             const response = await categoriesApi.getCategories();
             return response.data;
         },
-        staleTime: 1000 * 60 * 5, // 5 minutes cache before refetch
+        staleTime: 1000 * 60 * 5,
     });
+
+    const categoryOptions = categories.map(category => ({
+        value: category.categoryId,
+        label: category.categoryName
+    }));
 
     useEffect(() => {
         if (isOpen) {
-            // Reset form when modal opens
             setFormData({
                 productName: '',
                 energyKcal: 0,
@@ -56,21 +60,18 @@ export function CreateFoodProductModal({
                 foodCategoryId: 0
             });
             setErrors({});
-
-            // Prevent body scrolling when modal is open
             document.body.style.overflow = 'hidden';
         } else {
-            // Restore body scrolling when modal is closed
             document.body.style.overflow = 'unset';
         }
 
-        // Cleanup effect
         return () => {
             document.body.style.overflow = 'unset';
         };
     }, [isOpen]);
 
-    const validateField = (name: keyof FoodProductCreate, value: string | number): string => {
+
+    const validateField = (name: keyof FoodProductCreateUpdate, value: string | number): string => {
         if (name === 'productName') {
             if (!value) return 'Product name is required';
             if (String(value).length > 100) return 'Product name cannot exceed 100 characters';
@@ -94,7 +95,7 @@ export function CreateFoodProductModal({
         const processedValue = type === 'number' ? Number(value) : value;
 
         // Validate
-        const error = validateField(name as keyof FoodProductCreate, processedValue);
+        const error = validateField(name as keyof FoodProductCreateUpdate, processedValue);
 
         setErrors(prev => ({
             ...prev,
@@ -111,7 +112,7 @@ export function CreateFoodProductModal({
         const newErrors: FormErrors = {};
         let isValid = true;
 
-        (Object.keys(formData) as Array<keyof FoodProductCreate>).forEach(key => {
+        (Object.keys(formData) as Array<keyof FoodProductCreateUpdate>).forEach(key => {
             const error = validateField(key, formData[key]);
             if (error) {
                 newErrors[key] = error;
@@ -143,16 +144,16 @@ export function CreateFoodProductModal({
 
     return (
         <>
+            <div className="modal-backdrop fade show"></div>
             <div
                 className="modal fade show"
-                style={{ display: 'block', backgroundColor: 'rgba(0, 0, 0, 0.5)' }}
+                tabIndex={-1}
+                style={{ display: 'block' }}
                 onClick={(e) => {
-                    if (e.target === e.currentTarget) {
-                        onClose();
-                    }
+                    if (e.target === e.currentTarget) onClose();
                 }}
             >
-                <div className="modal-dialog modal-lg">
+                <div className="modal-dialog modal-dialog-centered modal-lg">
                     <div className="modal-content">
                         <div className="modal-header">
                             <h5 className="modal-title">Create New Product</h5>
@@ -184,25 +185,16 @@ export function CreateFoodProductModal({
                                 </div>
 
                                 <div className="mb-3">
-                                    <label htmlFor="foodCategoryId" className="form-label">Category</label>
-                                    <select
-                                        id="foodCategoryId"
-                                        className={`form-select ${errors.foodCategoryId ? 'is-invalid' : ''}`}
+                                    <Select
+                                        label="Category"
+                                        options={categoryOptions}
                                         name="foodCategoryId"
                                         value={formData.foodCategoryId}
                                         onChange={handleInputChange}
+                                        error={errors.foodCategoryId}
+                                        fullWidth
                                         required
-                                    >
-                                        <option value="0">Select a category</option>
-                                        {categories.map(category => (
-                                            <option key={category.categoryId} value={category.categoryId}>
-                                                {category.categoryName}
-                                            </option>
-                                        ))}
-                                    </select>
-                                    {errors.foodCategoryId && (
-                                        <div className="invalid-feedback">{errors.foodCategoryId}</div>
-                                    )}
+                                    />
                                 </div>
 
                                 <h6 className="mb-3">Nutrition Values (per 100g)</h6>
@@ -233,17 +225,18 @@ export function CreateFoodProductModal({
                             </div>
                             <div className="modal-footer">
                                 <Button
-                                    variant="secondary"
                                     onClick={onClose}
+                                    className="btn btn-subtle"
                                     disabled={isLoading}
                                 >
                                     Cancel
                                 </Button>
                                 <Button
-                                    variant="primary"
                                     type="submit"
-                                    isLoading={isLoading}
+                                    className="btn btn-primary"
+                                    disabled={isLoading}
                                 >
+                                    {isLoading && <span className="spinner-border spinner-border-sm me-2" />}
                                     Create Product
                                 </Button>
                             </div>

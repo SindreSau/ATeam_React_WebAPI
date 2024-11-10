@@ -1,25 +1,10 @@
 // src/api/products.ts
 import api from './axios';
 import { AxiosResponse } from 'axios';
-import { FoodProduct, FoodProductCreate } from '../types/foodProduct';
+import { FoodProduct, FoodProductCreateUpdate } from '../types/foodProduct';
+import {PaginatedResponse, ProductQueryParams} from "../types/common";
 
-interface PaginatedResponse<T> {
-    items: T[];
-    pageNumber: number;
-    pageSize: number;
-    totalCount: number;
-    totalPages: number;
-    hasPreviousPage: boolean;
-    hasNextPage: boolean;
-}
 
-interface ProductQueryParams {
-    pageNumber?: number;
-    pageSize?: number;
-    orderBy?: string;
-    nokkelhull?: boolean;
-    searchTerm?: string;
-}
 
 export const productsApi = {
     // Vendor endpoints
@@ -29,10 +14,10 @@ export const productsApi = {
     getVendorProduct: (id: number): Promise<AxiosResponse<FoodProduct>> =>
         api.get(`/Vendor/${id}`),
 
-    createProduct: (product: FoodProductCreate): Promise<AxiosResponse<FoodProduct>> =>
+    createProduct: (product: FoodProductCreateUpdate): Promise<AxiosResponse<FoodProduct>> =>
         api.post('/Vendor', product),
 
-    updateProduct: (id: number, product: FoodProductCreate): Promise<AxiosResponse<FoodProduct>> =>
+    updateProduct: (id: number, product: FoodProductCreateUpdate): Promise<AxiosResponse<FoodProduct>> =>
         api.put(`/Vendor/${id}`, product),
 
     deleteProduct: (id: number): Promise<AxiosResponse<void>> =>

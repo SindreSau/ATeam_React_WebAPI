@@ -68,6 +68,8 @@ public class AccountController : ControllerBase
 
         if (result.Succeeded)
         {
+
+
             var user = await _userManager.FindByEmailAsync(request.Email);
             if (user != null)
             {

@@ -1,7 +1,7 @@
 // src/api/axios.ts
 import axios from 'axios';
 
-let baseURL = process.env.REACT_APP_API_URL || 'http://localhost:5001/api';
+let baseURL = process.env.REACT_APP_API_URL || 'https://localhost:5001/';
 
 // Create an axios instance
 const api = axios.create({
@@ -12,6 +12,7 @@ const api = axios.create({
         'Accept': 'application/json'
     }
 });
+
 
 // Add response interceptor for handling errors
 api.interceptors.response.use(

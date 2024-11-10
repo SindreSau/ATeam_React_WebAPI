@@ -41,12 +41,8 @@ public static class IdentityConfig
             options.Cookie.HttpOnly = true;
             options.Cookie.Path = "/";
             options.Cookie.Domain = null; // Let the browser decide
-            options.Cookie.SecurePolicy = env.IsDevelopment()
-                ? CookieSecurePolicy.None
-                : CookieSecurePolicy.Always;
-            options.Cookie.SameSite = env.IsDevelopment()
-                ? SameSiteMode.Lax
-                : SameSiteMode.None;
+            options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
+            options.Cookie.SameSite = SameSiteMode.None;
 
             // Set cookie expiration
             options.ExpireTimeSpan = TimeSpan.FromDays(1);

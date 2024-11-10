@@ -152,7 +152,7 @@ public static class DbSeeder
                     CreatedAt = DateTime.UtcNow,
                     UpdatedAt = DateTime.UtcNow,
                     CreatedById = vendorId,
-                    FoodCategoryId = 10
+                    FoodCategoryId = 10 // Ferdigretter
                 },
                 new FoodProduct
                 {
@@ -167,9 +167,8 @@ public static class DbSeeder
                     CreatedAt = DateTime.UtcNow,
                     UpdatedAt = DateTime.UtcNow,
                     CreatedById = vendorId,
-                    FoodCategoryId = 3
+                    FoodCategoryId = 3 // Grøt, brød og pasta
                 },
-                // This should be nokkelhull qualified
                 new FoodProduct
                 {
                     ProductName = "Knekkebrød",
@@ -183,8 +182,128 @@ public static class DbSeeder
                     CreatedAt = DateTime.UtcNow,
                     UpdatedAt = DateTime.UtcNow,
                     CreatedById = vendorId,
-                    FoodCategoryId = 3
+                    FoodCategoryId = 3 // Grøt, brød og pasta
                 },
+                new FoodProduct
+                {
+                    ProductName = "Laks (fersk)",
+                    EnergyKcal = 45,
+                    Protein = 20,
+                    Carbohydrates = 0,
+                    Fat = 15,
+                    Fiber = 0,
+                    Salt = (Decimal) 0.2,
+                    NokkelhullQualified = NutritionCalculatorService.IsNokkelhullQualified(45, 20, 0, 15, 0, (float) 0.2),
+                    CreatedAt = DateTime.UtcNow,
+                    UpdatedAt = DateTime.UtcNow,
+                    CreatedById = vendorId,
+                    FoodCategoryId = 7 // Fisk, skalldyr og produkter av disse
+                },
+                new FoodProduct
+                {
+                    ProductName = "Yoghurt Naturell",
+                    EnergyKcal = 35,
+                    Protein = (Decimal) 3.5,
+                    Carbohydrates = (Decimal) 4.7,
+                    Fat = (Decimal) 3.8,
+                    Fiber = 0,
+                    Salt = (Decimal) 0.1,
+                    NokkelhullQualified = NutritionCalculatorService.IsNokkelhullQualified(35, (float) 3.5, (float) 4.7, (float) 3.8, 0, (float) 0.1),
+                    CreatedAt = DateTime.UtcNow,
+                    UpdatedAt = DateTime.UtcNow,
+                    CreatedById = vendorId,
+                    FoodCategoryId = 4 // Melk, syrnede melkeprodukter og vegetabilske alternativer
+                },
+                new FoodProduct
+                {
+                    ProductName = "Havregryn",
+                    EnergyKcal = 37,
+                    Protein = 13,
+                    Carbohydrates = 58,
+                    Fat = 7,
+                    Fiber = 10,
+                    Salt = 0,
+                    NokkelhullQualified = NutritionCalculatorService.IsNokkelhullQualified(37, 13, 58, 7, 10, 0),
+                    CreatedAt = DateTime.UtcNow,
+                    UpdatedAt = DateTime.UtcNow,
+                    CreatedById = vendorId,
+                    FoodCategoryId = 2 // Mel, gryn og ris
+                },
+                new FoodProduct
+                {
+                    ProductName = "Vegetar Burger",
+                    EnergyKcal = 42,
+                    Protein = 15,
+                    Carbohydrates = 12,
+                    Fat = 8,
+                    Fiber = 6,
+                    Salt = (Decimal) 1.2,
+                    NokkelhullQualified = NutritionCalculatorService.IsNokkelhullQualified(42, 15, 12, 8, 6, (float) 1.2),
+                    CreatedAt = DateTime.UtcNow,
+                    UpdatedAt = DateTime.UtcNow,
+                    CreatedById = vendorId,
+                    FoodCategoryId = 9 // Vegetabilske produkter
+                },
+                new FoodProduct
+                {
+                    ProductName = "Pesto",
+                    EnergyKcal = 65,
+                    Protein = 5,
+                    Carbohydrates = 3,
+                    Fat = 25,
+                    Fiber = 2,
+                    Salt = (Decimal) 2.5,
+                    NokkelhullQualified = NutritionCalculatorService.IsNokkelhullQualified(65, 5, 3, 25, 2, (float) 2.5),
+                    CreatedAt = DateTime.UtcNow,
+                    UpdatedAt = DateTime.UtcNow,
+                    CreatedById = vendorId,
+                    FoodCategoryId = 11 // Dressinger og sauser
+                },
+                new FoodProduct
+                {
+                    ProductName = "Grovbrød",
+                    EnergyKcal = 25,
+                    Protein = 8,
+                    Carbohydrates = 45,
+                    Fat = (Decimal) 1.5,
+                    Fiber = 8,
+                    Salt = (Decimal) 0.8,
+                    NokkelhullQualified = NutritionCalculatorService.IsNokkelhullQualified(25, 8, 45, (float) 1.5, 8, (float) 0.8),
+                    CreatedAt = DateTime.UtcNow,
+                    UpdatedAt = DateTime.UtcNow,
+                    CreatedById = vendorId,
+                    FoodCategoryId = 3 // Grøt, brød og pasta
+                },
+                new FoodProduct
+                {
+                    ProductName = "Cottage Cheese",
+                    EnergyKcal = 38,
+                    Protein = 11,
+                    Carbohydrates = 3,
+                    Fat = (Decimal) 4.5,
+                    Fiber = 0,
+                    Salt = (Decimal) 0.9,
+                    NokkelhullQualified = NutritionCalculatorService.IsNokkelhullQualified(38, 11, 3, (float) 4.5, 0, (float) 0.9),
+                    CreatedAt = DateTime.UtcNow,
+                    UpdatedAt = DateTime.UtcNow,
+                    CreatedById = vendorId,
+                    FoodCategoryId = 5 // Ost og vegetabilske alternativer
+                },
+                new FoodProduct
+                {
+                    ProductName = "Mandler",
+                    EnergyKcal = 85,
+                    Protein = 21,
+                    Carbohydrates = 6,
+                    Fat = 49,
+                    Fiber = 12,
+                    Salt = 0,
+                    NokkelhullQualified = NutritionCalculatorService.IsNokkelhullQualified(85, 21, 6, 49, 12, 0),
+                    CreatedAt = DateTime.UtcNow,
+                    UpdatedAt = DateTime.UtcNow,
+                    CreatedById = vendorId,
+                    FoodCategoryId = 1 // Grønnsaker, frukt, bær og nøtter
+                }
             };
 
             await context.FoodProducts.AddRangeAsync(products);

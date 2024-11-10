@@ -74,22 +74,22 @@ builder.Services.AddSwaggerGen(options =>
 // CORS configuration
 builder.Services.AddCors(options =>
 {
-    options.AddPolicy("AllowReactApp", builder =>
-    {
-        builder
-            .WithOrigins("http://localhost:3000")
-            .AllowAnyMethod()
-            .AllowAnyHeader()
-            .AllowCredentials()
-            .WithExposedHeaders("WWW-Authenticate");
-    });
+    options.AddPolicy("AllowReactApp",
+        policyBuilder =>
+        {
+            policyBuilder
+                .WithOrigins(["http://localhost:3000"])
+                .AllowAnyMethod()
+                .AllowAnyHeader()
+                .AllowCredentials();
+        });
 });
 
 
 // Configure services using extension methods from the Configuration folder
 builder.Services
     .AddDatabaseServices(builder.Configuration)
-    .AddIdentityServices();
+    .AddIdentityServices(builder.Environment);
 
 var app = builder.Build();
 

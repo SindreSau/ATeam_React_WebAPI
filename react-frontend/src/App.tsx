@@ -4,11 +4,11 @@ import {Routes, Route, BrowserRouter} from 'react-router-dom';
 import Home from "./pages/Home";
 import Products from "./pages/Products";
 import MainLayout from "./components/MainLayout";
-import AuthTest from "./pages/AuthTest";
 import {AuthProvider} from "./contexts/AuthContext";
 import Login from "./pages/Login";
 import {ProtectedRoute} from "./components/ProtectedRoute";
 import Register from "./pages/Register";
+import Categories from "./pages/Categories";
 
 function App() {
     return (
@@ -29,8 +29,14 @@ function App() {
                                     </ProtectedRoute>
                                 }
                             />
-
-                            <Route path="/auth-test" element={<AuthTest/>}/>
+                            <Route
+                                path="/categories"
+                                element={
+                                    <ProtectedRoute allowedRoles={["Admin"]}>
+                                        <Categories />
+                                    </ProtectedRoute>
+                                }
+                            />
                         </Route>
                     </Routes>
                 </BrowserRouter>

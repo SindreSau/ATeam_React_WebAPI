@@ -8,11 +8,11 @@ const Spinner = ({fullPage = false, size = 'md'}: SpinnerProps) => {
     const getSizeClass = () => {
         switch (size) {
             case 'sm':
-                return 'spinner-border-sm';
+                return 'spinner-border-sm text-primary';
             case 'lg':
-                return 'spinner-border spinner-border-lg';
+                return 'spinner-border text-primary spinner-border-lg';
             default:
-                return 'spinner-border';
+                return 'spinner-border text-primary';
         }
     };
 

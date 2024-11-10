@@ -26,7 +26,7 @@ export const ProtectedRoute = ({ children, allowedRoles = [] }: ProtectedRoutePr
     // Check roles if specified
     if (allowedRoles.length > 0 && !allowedRoles.includes(user.role as UserRole)) {
         console.warn(`User role ${user.role} is not allowed to access this route.`);
-        return <Navigate to="/unauthorized" />;
+        return <Navigate to="/" />;
     }
 
     return <>{children}</>;

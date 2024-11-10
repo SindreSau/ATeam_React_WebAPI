@@ -1,4 +1,4 @@
-import { FoodProduct, FoodProductCreate } from '../types/foodProduct';
+import { FoodProduct } from '../types/foodProduct';
 import { PaginatedResponse } from '../types/common';
 
 export const fetchFoodProducts = async (searchTerm: string, pagination: { pageNumber: number, pageSize: number }

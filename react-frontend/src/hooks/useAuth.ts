@@ -1,7 +1,15 @@
 // src/hooks/useAuth.ts
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { authApi, isAuthError } from '../api/auth';
+import { authApi } from '../api/auth';
 import { AxiosError } from 'axios';
+
+const handleError = (error: unknown) => {
+    if (error instanceof AxiosError) {
+        console.error('Error:', error.response?.data || error.message);
+    } else {
+        console.error('Unexpected error:', error);
+    }
+};
 
 export const useAuth = () => {
     const queryClient = useQueryClient();
@@ -9,16 +17,16 @@ export const useAuth = () => {
     const loginMutation = useMutation({
         mutationFn: async (credentials: { email: string; password: string }) => {
             const response = await authApi.login(credentials);
+            // Add a small delay to ensure cookie is properly set
+            await new Promise(resolve => setTimeout(resolve, 100));
             return response.data;
         },
-        onError: (error) => {
-            if (isAuthError(error)) {
-                console.error('Custom Auth Error:', error.message);
-            }
+        onSuccess: async () => {
+            // Force a refetch instead of just invalidating
+            await queryClient.resetQueries({ queryKey: ['user'] });
+            await queryClient.fetchQuery({ queryKey: ['user'] });
         },
-        onSuccess: () => {
-            queryClient.invalidateQueries({ queryKey: ['user'] });
-        }
+        onError: handleError,
     });
 
     const registerMutation = useMutation({
@@ -26,24 +34,20 @@ export const useAuth = () => {
             const response = await authApi.register(credentials);
             return response.data;
         },
-        onError: (error) => {
-            console.error('Registration Error:', error.message);
-        },
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['user'] });
-        }
+        },
+        onError: handleError,
     });
 
     const logoutMutation = useMutation({
         mutationFn: async () => {
             await authApi.logout();
         },
-        onError: (error) => {
-            // Handle specific logout errors here, if needed
-        },
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['user'] });
-        }
+        },
+        onError: handleError,
     });
 
     const { data: userInfo, isLoading, isError } = useQuery({
@@ -53,7 +57,6 @@ export const useAuth = () => {
                 const response = await authApi.getUserInfo();
                 return response.data;
             } catch (error) {
-                // Handle 401 Unauthorized directly here if relevant
                 if ((error as AxiosError).response?.status === 401) {
                     return null; // or trigger a logout if needed
                 }

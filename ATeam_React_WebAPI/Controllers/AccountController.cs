@@ -68,15 +68,21 @@ public class AccountController : ControllerBase
 
         if (result.Succeeded)
         {
-            var user = await _userManager.FindByEmailAsync(request.Email);
-            var roles = await _userManager.GetRolesAsync(user);
 
-            _logger.LogInformation("User {Email} logged in successfully", request.Email);
-            return Ok(new LoginResponse
+
+            var user = await _userManager.FindByEmailAsync(request.Email);
+            if (user != null)
             {
-                Email = user.Email,
-                Role = roles.FirstOrDefault() ?? "Vendor"
-            });
+                var roles = await _userManager.GetRolesAsync(user);
+
+                _logger.LogInformation("User {Email} logged in successfully", request.Email);
+                if (user.Email != null)
+                    return Ok(new LoginResponse
+                    {
+                        Email = user.Email,
+                        Role = roles.FirstOrDefault() ?? "Vendor"
+                    });
+            }
         }
 
         if (result.IsLockedOut)

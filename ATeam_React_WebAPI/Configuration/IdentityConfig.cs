@@ -7,7 +7,7 @@ namespace ATeam_React_WebAPI.Configuration;
 
 public static class IdentityConfig
 {
-    public static IServiceCollection AddIdentityServices(this IServiceCollection services)
+    public static IServiceCollection AddIdentityServices(this IServiceCollection services, IWebHostEnvironment env)
     {
         services.AddIdentity<IdentityUser, IdentityRole>(options =>
             {
@@ -39,8 +39,10 @@ public static class IdentityConfig
         services.ConfigureApplicationCookie(options =>
         {
             options.Cookie.HttpOnly = true;
+            options.Cookie.Path = "/";
+            options.Cookie.Domain = null; // Let the browser decide
             options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
-            options.Cookie.SameSite = SameSiteMode.Lax;
+            options.Cookie.SameSite = SameSiteMode.None;
 
             // Set cookie expiration
             options.ExpireTimeSpan = TimeSpan.FromDays(1);
@@ -48,7 +50,7 @@ public static class IdentityConfig
 
             // These paths should match your frontend routes
             options.LoginPath = "/login";
-            options.AccessDeniedPath = "/forbidden";
+            options.AccessDeniedPath = "/unauthorized";
             options.LogoutPath = "/logout";
 
             // Handle unauthorized API requests

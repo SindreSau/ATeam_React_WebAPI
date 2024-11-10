@@ -1,14 +1,17 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { FoodProduct } from '../types/foodProduct';
+import { CardEditModal}from './CardEditModal';
 import { Link } from 'react-router-dom';
 
 interface FoodProductCardProps {
     foodProduct: FoodProduct;
     onDelete: (productId: number) => void;
+    onEdit: (foodProduct: FoodProduct) => void;
+    
 }
 
-export const FoodProductCard: React.FC<FoodProductCardProps> = ({ foodProduct, onDelete }) => {
-
+export const FoodProductCard: React.FC<FoodProductCardProps> = ({ foodProduct, onEdit }) => {
+    const [showEditModal, setShowEditModal] = useState(false);
     return (
         <div className="card mb-3">
         <div className="card-body rounded-5">
@@ -47,15 +50,15 @@ export const FoodProductCard: React.FC<FoodProductCardProps> = ({ foodProduct, o
                 </div>
             </div>
             <div className="d-flex gap-2">
-                <Link 
-                    to={`/edit/${foodProduct.productId}`} 
+                <button
                     className="btn btn-sm btn-outline-secondary"
+                    onClick={() => onEdit(foodProduct)}
                 >
                     <i className="fa fa-pencil"></i> Edit
-                </Link>
+                </button>
                 <button 
                     className="btn btn-sm btn-outline-danger" 
-                    onClick={() => onDelete(foodProduct.productId)}
+                    //onClick={() => onDelete(foodProduct.productId)}
                 >
                     <i className="fa fa-trash"></i> Delete
                 </button>

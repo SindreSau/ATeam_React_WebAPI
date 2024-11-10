@@ -14,7 +14,7 @@ namespace ATeam_React_WebAPI.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
-[Authorize(Roles = "Vendor")]
+//[Authorize(Roles = "Vendor")]
 public class VendorController : ControllerBase
 {
   private readonly IFoodProductRepository _foodProductRepository;
@@ -66,7 +66,7 @@ public class VendorController : ControllerBase
   // GET : api/vendor
   // Returns paginated list of food products
   [HttpGet]
-  public async Task<ActionResult<PaginatedResponse<FoodProductDTO>>> GetProducts([FromQuery] PaginationParameters parameters)
+  public async Task<ActionResult<PaginatedResponse<FoodProductDTO>>> GetProducts([FromQuery] PaginationParameters parameters, [FromQuery] string searchTerm = "")
   {
     try
     {
@@ -79,7 +79,8 @@ public class VendorController : ControllerBase
         parameters.PageNumber,
         parameters.PageSize,
         parameters.OrderBy,
-        parameters.Nokkelhull);
+        parameters.Nokkelhull,
+        searchTerm);
 
       // Get total count for pagination:
       var totalCount = await _foodProductRepository.GetFoodProductsByVendorCountAsync(userId);
@@ -274,6 +275,7 @@ public class VendorController : ControllerBase
     {
       return Unauthorized();
     }
+    
     catch (KeyNotFoundException)
     {
       return NotFound();

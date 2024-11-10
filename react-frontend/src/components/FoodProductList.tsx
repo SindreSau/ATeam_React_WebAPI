@@ -1,54 +1,38 @@
-import React, {useEffect, useState, useCallback} from 'react';
+import React, {useEffect, useState} from 'react';
 import {useSearchParams} from 'react-router-dom';
 import {FoodProduct} from '../types/foodProduct';
+import {fetchFoodProducts, updateFoodProduct} from '../services/foodProductService';
 import {FoodProductCard} from './FoodProductCard';
-import { SearchForm } from './SearchForm';
+import {SearchForm} from './SearchForm';
+import { CardEditModal } from './CardEditModal';
 
 export const FoodProductList: React.FC = () => {
-    const [foodProducts, setFoodProducts] = useState<FoodProduct[]>([]);
     const [searchParams, setSearchParams] = useSearchParams();
-    const [initialLoading, setInitialLoading] = useState(true);
-    const [searchLoading, setSearchLoading] = useState(false);
+    const [foodProducts, setFoodProducts] = useState<FoodProduct[]>([]);
+    const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
+    const [totalCount, setTotalCount] = useState(0);
+    const [modalOpen, setModalOpen] = useState(false);
+    const [currentFoodProductCard, setCurrentFoodProductCard] = useState<FoodProduct | null>(null);
 
-    const fetchFoodProducts = useCallback(async (search: string = '') => {
-        try {
-            if (!initialLoading) {
-                setSearchLoading(true);
-            }
-
-            const url = search ? `/api/foodproducts?search=${search}` : '/api/foodproducts';
-            
-            const response = await fetch(url);
-
-            if (!response.ok) {
-                throw new Error('Failed to fetch food products');
-            }
-
-            const data = await response.json();
-            setFoodProducts(data);
-        } catch (error) {
-            setError('Error fetching food products');
-        } finally {
-            setInitialLoading(false);
-            setSearchLoading(false);
-        }
-    }, [initialLoading]);
-
-    const handleSearch = (search: string) => {
-        if (search) {
-            setSearchParams({search});
-        } else {
-            setSearchParams({});
-        }
+    const openModal = (foodProductCard: FoodProduct) => {
+        setCurrentFoodProductCard(foodProductCard);
+        setModalOpen(true);
     };
 
-    useEffect(() => {
-        const searchTerm = searchParams.get('q') || '';
-        fetchFoodProducts(searchTerm).then(() => {
-            setInitialLoading(false);
-        });
-    }, [fetchFoodProducts, searchParams]);
+    const closeModal = () => {
+        setModalOpen(false);
+        setCurrentFoodProductCard(null);
+    }
+
+    const handleUpdate = async (updatedProduct: FoodProduct) => {
+        try {
+            await updateFoodProduct(updatedProduct);
+            setFoodProducts(prev => prev.map(p => p.productId === updatedProduct.productId ? updatedProduct : p));
+        } catch (error) {
+            setError('Error updating food product');
+        }
+    };
 
     const handleDelete = async (productId: number) => {
         try {
@@ -63,44 +47,59 @@ export const FoodProductList: React.FC = () => {
         }
     };
 
+    useEffect(() => {
+        const loadProducts = async () => {
+            try {
+                setLoading(true);
+                const searchTerm = searchParams.get('search') || '';
+                const response = await fetchFoodProducts(searchTerm, {
+                    pageNumber: 1,
+                    pageSize: 10
+                });
+                setFoodProducts(response.items);
+                setTotalCount(response.totalCount);
+            } catch (err) {
+                setError('Failed to load food products');
+                console.error(err);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        loadProducts();
+    }, [searchParams]);
+
+    if (loading) {
+        return <div>Loading...</div>;
+    }
+
     if (error) {
-        return (
-            <div className='alert alert-danger' role='alert'>
-                Error: {error}
-            </div>
-        );
+        return <div>Error: {error}</div>;
     }
 
     return (
-        <>
-            <SearchForm
-                initialSearch={searchParams.get('q') || ''}
-                onSearch={handleSearch}
+        <div>
+            <SearchForm 
+                initialSearch={searchParams.get('search') || ''} 
+                onSearch={(search) => setSearchParams({ search })}
             />
-
-            {initialLoading ? (
-                <div className='text-center'>
-                    <div className='spinner-border text-primary' role='status'>
-                        <span className='visually-hidden'>Loading...</span>
+            <div className="row">
+                {foodProducts.map(product => (
+                    <div key={product.productId} className="col-md-4 mb-4">
+                        <FoodProductCard 
+                            foodProduct={product}
+                            onEdit={() => openModal(product)}
+                            onDelete={handleDelete} 
+                        />
                     </div>
-                </div>
-            ) : (
-                <div className={searchLoading ? 'opacity-50' : ''}>
-                    <div className='row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4'>
-                        {foodProducts.map((foodProduct) => (
-                            <div key={foodProduct.productId} className='col'>
-                                <FoodProductCard foodProduct={foodProduct} onDelete={handleDelete}/>
-                            </div>
-                        ))}
-                    </div>
-                </div>
+                ))}
+            </div>
+            {foodProducts.length === 0 && (
+                <div>No products found</div>
             )}
-
-            {!initialLoading && !searchLoading && foodProducts.length === 0 && (
-                <div className='alert alert-info text-center' role='alert'>
-                    No food products found
-                </div>
+            {modalOpen && (
+                <CardEditModal foodProduct={currentFoodProductCard!} show={modalOpen} onClose={closeModal} onSave={handleUpdate} />
             )}
-        </>
+        </div>
     );
 };

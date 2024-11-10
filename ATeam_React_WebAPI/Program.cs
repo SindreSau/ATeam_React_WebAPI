@@ -74,16 +74,15 @@ builder.Services.AddSwaggerGen(options =>
 // CORS configuration
 builder.Services.AddCors(options =>
 {
-    options.AddPolicy("AllowReactApp",
-        policyBuilder =>
-        {
-            var allowedOrigins = builder.Configuration.GetSection("Cors:AllowedOrigins").Get<string[]>();
-            policyBuilder
-                .WithOrigins(allowedOrigins ?? ["http://localhost:3000"])
-                .AllowAnyMethod()
-                .AllowAnyHeader()
-                .AllowCredentials();
-        });
+    options.AddPolicy("AllowReactApp", builder =>
+    {
+        builder
+            .WithOrigins("http://localhost:3000")
+            .AllowAnyMethod()
+            .AllowAnyHeader()
+            .AllowCredentials()
+            .WithExposedHeaders("WWW-Authenticate");
+    });
 });
 
 
@@ -142,13 +141,11 @@ else
     Log.Information("Running in production mode");
 }
 
+// Reorder middleware (move HTTPS redirection before CORS)
 app.UseHttpsRedirection();
-
-// Enable CORS for the React app
 app.UseCors("AllowReactApp");
 
 app.UseRouting();
-
 app.UseAuthentication();
 app.UseAuthorization();
 

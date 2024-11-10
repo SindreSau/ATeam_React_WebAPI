@@ -1,11 +1,11 @@
 // src/components/NavBar.tsx
-import React, { useEffect, useState } from 'react';
-import { NavLink, useNavigate } from 'react-router-dom';
-import { useAuthContext } from '../contexts/AuthContext';
+import React, {useEffect, useState} from 'react';
+import {NavLink, useNavigate} from 'react-router-dom';
+import {useAuthContext} from '../contexts/AuthContext';
 import Spinner from "./Spinner";
 
 const Navbar: React.FC = () => {
-    const { isAuthenticated, user, isLoading, logout } = useAuthContext();
+    const {isAuthenticated, user, isLoading, logout} = useAuthContext();
     const navigate = useNavigate();
     const [theme, setTheme] = useState<'light' | 'dark'>(
         localStorage.getItem('theme') as 'light' | 'dark' || 'light'
@@ -42,7 +42,7 @@ const Navbar: React.FC = () => {
                             src="/assets/images/nokkellhulllogo.svg"
                             alt="Nøkkelhollet"
                             className="me-2"
-                            style={{ height: '40px', width: 'auto' }}
+                            style={{height: '40px', width: 'auto'}}
                         />
                     </NavLink>
 
@@ -58,7 +58,7 @@ const Navbar: React.FC = () => {
                     <div className="navbar-collapse collapse d-sm-inline-flex justify-content-between">
                         <ul className="navbar-nav flex-grow-1">
                             <li className="nav-item">
-                                <NavLink to="/" className={({ isActive }) =>
+                                <NavLink to="/" className={({isActive}) =>
                                     `nav-link mx-4${isActive ? ' active' : ''}`
                                 }>
                                     Home
@@ -66,22 +66,36 @@ const Navbar: React.FC = () => {
                             </li>
                             {/* Add protected navigation items */}
                             {isAuthenticated && (
-                                <li className="nav-item">
-                                    <NavLink
-                                        to="/products"
-                                        className={({ isActive }) =>
-                                            `nav-link mx-4${isActive ? ' active' : ''}`
-                                        }
-                                    >
-                                        Products
-                                    </NavLink>
-                                </li>
+                                <>
+                                    <li className="nav-item">
+                                        <NavLink
+                                            to="/products"
+                                            className={({isActive}) =>
+                                                `nav-link mx-4${isActive ? ' active' : ''}`
+                                            }
+                                        >
+                                            Products
+                                        </NavLink>
+                                    </li>
+                                    {user?.role === 'Admin' && (
+                                        <li className="nav-item">
+                                            <NavLink
+                                                to="/categories"
+                                                className={({isActive}) =>
+                                                    `nav-link mx-4${isActive ? ' active' : ''}`
+                                                }
+                                            >
+                                                Categories
+                                            </NavLink>
+                                        </li>
+                                    )}
+                                </>
                             )}
                         </ul>
 
                         <div className="nav-item mx-2">
                             <button className="btn px-2" onClick={toggleTheme}>
-                                <i className={`fas ${theme === 'dark' ? 'fa-sun' : 'fa-moon'} theme-icon-transition`} />
+                                <i className={`fas ${theme === 'dark' ? 'fa-sun' : 'fa-moon'} theme-icon-transition`}/>
                             </button>
                         </div>
 
@@ -125,7 +139,7 @@ const Navbar: React.FC = () => {
                 </div>
             </nav>
         </header>
-);
+    );
 };
 
 export default Navbar;

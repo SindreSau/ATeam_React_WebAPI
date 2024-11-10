@@ -1,4 +1,5 @@
-import PageSizeSelector from "./PageSizeSelector";
+import {PageSizeSelector} from "./PageSizeSelector";
+
 
 interface PaginationProps {
     /** Current active page number */
@@ -84,11 +85,9 @@ const PaginationController = ({
     return (
         <div className="d-flex justify-content-between align-items-center mt-4">
             <PageSizeSelector
-                pageSize={pageSize}
-                totalItems={totalItems}
-                currentPage={currentPage}
-                pageSizeOptions={pageSizeOptions}
-                onPageSizeChange={onPageSizeChange}
+                currentSize={pageSize}
+                selectOptions={pageSizeOptions}
+                onChange={onPageSizeChange}
             />
 
             <nav aria-label="Page navigation">

@@ -1,15 +1,8 @@
 // src/api/categories.ts
 import api from './axios';
 import { AxiosResponse } from 'axios';
+import {CategoryCreate, FoodCategory} from "../types/category";
 
-interface FoodCategory {
-    categoryId: number;
-    categoryName: string;
-}
-
-interface CategoryCreate {
-    categoryName: string;
-}
 
 export const categoriesApi = {
     getCategories: (): Promise<AxiosResponse<FoodCategory[]>> =>

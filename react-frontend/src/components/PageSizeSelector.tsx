@@ -1,38 +1,31 @@
+// PageSizeSelector.tsx
+import { Select } from './Select';
+
 interface PageSizeSelectorProps {
-    pageSize: number;
-    totalItems: number;
-    currentPage: number;
-    pageSizeOptions: number[];
-    onPageSizeChange: (pageSize: number) => void;
+    currentSize: number;
+    selectOptions: number[];  // Changed from 'options' to 'selectOptions'
+    onChange: (value: number) => void;
 }
 
-const PageSizeSelector = ({
-                              pageSize,
-                              totalItems,
-                              currentPage,
-                              pageSizeOptions,
-                              onPageSizeChange,
-                          }: PageSizeSelectorProps) => {
-    const start = Math.min((currentPage - 1) * pageSize + 1, totalItems);
-    const end = Math.min(currentPage * pageSize, totalItems);
+export const PageSizeSelector = ({
+                                     currentSize,
+                                     selectOptions,
+                                     onChange
+                                 }: PageSizeSelectorProps) => {
+    const pageSizeOptions = selectOptions.map(size => ({
+        value: size,
+        label: size.toString()
+    }));
 
     return (
-        <div className="d-flex align-items-center">
-            <select
-                className="form-select form-select-sm w-auto me-3"
-                value={pageSize}
-                onChange={(e) => onPageSizeChange(Number(e.target.value))}
-                aria-label="Items per page"
-            >
-                {pageSizeOptions.map(size => (
-                    <option key={size} value={size}>{size} per page</option>
-                ))}
-            </select>
-            <span className="text-secondary">
-                {start}-{end} of {totalItems}
-            </span>
+        <div className="d-flex align-items-center gap-2">
+            <span className="text-muted">Items per page:</span>
+            <Select
+                options={pageSizeOptions}
+                value={currentSize}
+                onChange={(e) => onChange(Number(e.target.value))}
+                style={{ width: 'auto' }}
+            />
         </div>
     );
 };
-
-export default PageSizeSelector;

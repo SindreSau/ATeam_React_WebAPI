@@ -118,42 +118,25 @@ namespace ATeam_React_WebAPI.Repositories
                 query = query.Where(fp => fp.NokkelhullQualified == nokkelhull);
             }
 
-            // Apply sorting based on the specified order
-            switch (orderBy.ToLower())
+            // Apply ordering
+            query = orderBy?.ToLower() switch
             {
-                case "productname":
-                    query = query.OrderBy(fp => fp.ProductName);
-                    break;
-                case "energykcal":
-                    query = query.OrderBy(fp => fp.EnergyKcal);
-                    break;
-                case "fat":
-                    query = query.OrderBy(fp => fp.Fat);
-                    break;
-                case "carbohydrates":
-                    query = query.OrderBy(fp => fp.Carbohydrates);
-                    break;
-                case "protein":
-                    query = query.OrderBy(fp => fp.Protein);
-                    break;
-                case "fiber":
-                    query = query.OrderBy(fp => fp.Fiber);
-                    break;
-                case "salt":
-                    query = query.OrderBy(fp => fp.Salt);
-                    break;
-                default:
-                    query = query.OrderBy(fp => fp.FoodProductId); // Default ordering by Id
-                    break;
-            }
+                "productname" => query.OrderBy(p => p.ProductName),
+                "productname_desc" => query.OrderByDescending(p => p.ProductName),
+                "category" => query.OrderBy(p => p.FoodCategory.CategoryName),
+                "category_desc" => query.OrderByDescending(p => p.FoodCategory.CategoryName),
+                "energy" => query.OrderBy(p => p.EnergyKcal),
+                "energy_desc" => query.OrderByDescending(p => p.EnergyKcal),
+                "createdat" => query.OrderBy(p => p.CreatedAt),
+                "createdat_desc" => query.OrderByDescending(p => p.CreatedAt),
+                _ => query.OrderBy(p => p.FoodProductId)
+            };
 
             // Apply pagination
-            query = query
-                .Skip((pageNumber - 1) * pageSize) // Skip the previous pages
-                .Take(pageSize); // Take the specified number of records for the current page
-
-            // Execute the query and return the list of food products
-            return await query.ToListAsync();
+            return await query
+                .Skip((pageNumber - 1) * pageSize)
+                .Take(pageSize)
+                .ToListAsync();
         }
 
         // Get the count of food products by vendor

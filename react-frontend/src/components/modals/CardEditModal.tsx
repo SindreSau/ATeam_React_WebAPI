@@ -1,9 +1,10 @@
 import React, {useState} from 'react';
 import {useQuery} from '@tanstack/react-query';
-import {FoodProduct} from '../types/foodProduct';
-import {Button} from "./Button";
-import {Select} from "./Select";
-import {categoriesApi} from '../api/categories';
+import {FoodProduct} from '../../types/foodProduct';
+import {Button} from "../common/Button";
+import {Select} from "../common/Select";
+import {categoriesApi} from '../../api/categories';
+import {useEscapeKey} from "../../hooks/useEscapeKey";
 
 interface CardEditModalProps {
     foodProduct: FoodProduct;
@@ -16,6 +17,9 @@ export const CardEditModal: React.FC<CardEditModalProps> = ({foodProduct, show, 
 
     // Initialize state with all the product data, including foodCategoryId
     const [editedProduct, setEditedProduct] = useState<FoodProduct>(foodProduct);
+
+    // Close modal on escape key press
+    useEscapeKey(onClose);
 
     // Fetch categories
     const {data: categories = []} = useQuery({

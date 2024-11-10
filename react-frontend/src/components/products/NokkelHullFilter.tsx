@@ -1,5 +1,5 @@
 // NokkelhullFilter.tsx
-import { Button } from './Button';
+import { Button } from '../common/Button';
 
 interface NokkelhullFilterProps {
     value: boolean | null;

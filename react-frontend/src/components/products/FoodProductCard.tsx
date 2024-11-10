@@ -1,6 +1,6 @@
 import React from 'react';
-import {FoodProduct} from '../types/foodProduct';
-import {Button} from './Button';
+import {FoodProduct} from '../../types/foodProduct';
+import {Button} from '../common/Button';
 
 interface FoodProductCardProps {
     foodProduct: FoodProduct;
@@ -72,7 +72,7 @@ export const FoodProductCard: React.FC<FoodProductCardProps> = ({
                 <div className="d-flex gap-2">
                     {displayEditButton && (
                         <Button
-                            variant="outline-light"
+                            variant="outline-secondary"
                             onClick={() => onEdit(foodProduct)}
                             aria-label={`Edit ${foodProduct.productName}`}
                         >

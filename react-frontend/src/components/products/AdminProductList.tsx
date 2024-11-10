@@ -1,22 +1,20 @@
+// src/components/AdminProductList.tsx
 import {useState} from 'react';
-import {FoodProduct, FoodProductCreateUpdate} from '../types/foodProduct';
-import {SearchForm} from './SearchForm';
+import {FoodProduct} from '../../types/foodProduct';
+import {SearchForm} from '../common/SearchForm';
 import {FoodProductCard} from './FoodProductCard';
-import PaginationController from './PaginationController';
-import Spinner from './Spinner';
-import {Button} from './Button';
-import {CreateFoodProductModal} from './CreateFoodProductModal';
-import {CardEditModal} from './CardEditModal';
+import PaginationController from '../common/PaginationController';
+import Spinner from '../common/Spinner';
+import {CardEditModal} from '../modals/CardEditModal';
 import {NokkelhullFilter} from './NokkelHullFilter';
 import {ProductSort} from './ProductSort';
-import ConfirmationModal from "./ConfirmationModal";
-import {useProductMutations} from "../hooks/useProductMutations";
-import {useProductList} from "../hooks/useProductList";
-import Toast from "./Toast";
+import ConfirmationModal from "../modals/ConfirmationModal";
+import {useProductMutations} from "../../hooks/useProductMutations";
+import {useProductList} from "../../hooks/useProductList";
+import Toast from "../common/Toast";
 
-export const VendorProductList = () => {
+export const AdminProductList = () => {
     // Local state for modals
-    const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
     const [editModalProduct, setEditModalProduct] = useState<FoodProduct | null>(null);
     const [deleteModalProduct, setDeleteModalProduct] = useState<FoodProduct | null>(null);
 
@@ -28,7 +26,7 @@ export const VendorProductList = () => {
     } | null>(null);
 
     // Mutations and product list hook
-    const {createMutation, updateMutation, deleteMutation} = useProductMutations();
+    const {updateMutation, deleteMutation} = useProductMutations();
     const {
         data,
         isLoading,
@@ -46,33 +44,13 @@ export const VendorProductList = () => {
         handleSort,
         handleNokkelhullFilter,
     } = useProductList({
-        mode: 'vendor',
-        storageKey: 'vendorPreferredPageSize'
+        mode: 'admin',
+        storageKey: 'adminPreferredPageSize'
     });
-
-    // Handlers for mutations
-    const handleCreateProduct = async (data: FoodProductCreateUpdate) => {
-        try {
-            await createMutation.mutateAsync(data);
-            setIsCreateModalOpen(false);
-            setToast({
-                type: 'success',
-                message: 'Product created successfully!',
-                isVisible: true
-            });
-        } catch (error) {
-            setToast({
-                type: 'error',
-                message: 'Failed to create product. Please try again.',
-                isVisible: true
-            });
-            console.error('Failed to create product:', error);
-        }
-    };
 
     const handleUpdateProduct = async (updatedProduct: FoodProduct) => {
         try {
-            const updateDto: FoodProductCreateUpdate = {
+            const updateDto = {
                 productName: updatedProduct.productName,
                 energyKcal: updatedProduct.energyKcal,
                 fat: updatedProduct.fat,
@@ -90,7 +68,7 @@ export const VendorProductList = () => {
             setEditModalProduct(null);
             setToast({
                 type: 'success',
-                message: 'Product updated successfully!',
+                message: `${updatedProduct.productName} was successfully updated!`,
                 isVisible: true
             });
         } catch (error) {
@@ -108,12 +86,12 @@ export const VendorProductList = () => {
 
         try {
             await deleteMutation.mutateAsync(deleteModalProduct.productId);
-            setDeleteModalProduct(null);
             setToast({
                 type: 'success',
-                message: 'Product deleted successfully!',
+                message: `${deleteModalProduct.productName} was successfully deleted!`,
                 isVisible: true
             });
+            setDeleteModalProduct(null);
         } catch (error) {
             setToast({
                 type: 'error',
@@ -130,7 +108,7 @@ export const VendorProductList = () => {
     return (
         <div className="container py-4">
             <div className="d-flex justify-content-between align-items-center mb-4">
-                <h1 className="h3">My Products</h1>
+                <h1 className="h3">All Products</h1>
 
                 <div className="d-flex gap-3 align-items-center">
                     <ProductSort value={orderBy} onChange={handleSort}/>
@@ -138,13 +116,6 @@ export const VendorProductList = () => {
                         value={nokkelhull === undefined ? null : nokkelhull}
                         onChange={handleNokkelhullFilter}
                     />
-                    <Button
-                        variant="primary"
-                        onClick={() => setIsCreateModalOpen(true)}
-                    >
-                        <i className="fa fa-plus-circle me-2"></i>
-                        Add New Product
-                    </Button>
                 </div>
             </div>
 
@@ -155,7 +126,6 @@ export const VendorProductList = () => {
                 />
             </div>
 
-            {/* Food Products grid */}
             <div className="row g-4">
                 {data?.items.map((product: FoodProduct) => (
                     <div key={product.productId} className="col-12 col-sm-6 col-lg-4">
@@ -164,6 +134,8 @@ export const VendorProductList = () => {
                             onEdit={() => setEditModalProduct(product)}
                             onDelete={() => setDeleteModalProduct(product)}
                             isDeleting={deleteMutation.isPending && deleteModalProduct?.productId === product.productId}
+                            displayEditButton={false}
+                            displayDeleteButton={false}
                         />
                     </div>
                 ))}
@@ -191,14 +163,6 @@ export const VendorProductList = () => {
                 </div>
             </div>
 
-            {/* Modals */}
-            <CreateFoodProductModal
-                isOpen={isCreateModalOpen}
-                onClose={() => setIsCreateModalOpen(false)}
-                onSubmit={handleCreateProduct}
-                isLoading={createMutation.isPending}
-            />
-
             {editModalProduct && (
                 <CardEditModal
                     foodProduct={editModalProduct}
@@ -208,7 +172,6 @@ export const VendorProductList = () => {
                 />
             )}
 
-            {/* ConfirmationModal for deletion */}
             <ConfirmationModal
                 isOpen={!!deleteModalProduct}
                 onClose={() => setDeleteModalProduct(null)}
@@ -220,7 +183,8 @@ export const VendorProductList = () => {
                 isLoading={deleteMutation.isPending}
             />
 
-            {/* Toast */}
+
+            {/* Add right before the closing div of the container */}
             {toast && (
                 <Toast
                     type={toast.type}

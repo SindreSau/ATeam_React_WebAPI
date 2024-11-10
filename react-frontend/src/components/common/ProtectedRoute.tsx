@@ -1,9 +1,9 @@
 // src/components/ProtectedRoute.tsx
 import { Navigate } from 'react-router-dom';
-import { useAuthContext } from '../contexts/AuthContext';
+import { useAuthContext } from '../../contexts/AuthContext';
 import React from "react";
 import Spinner from "./Spinner";
-import {UserRole} from "../types/auth";
+import {UserRole} from "../../types/auth";
 
 interface ProtectedRouteProps {
     children: React.ReactNode;

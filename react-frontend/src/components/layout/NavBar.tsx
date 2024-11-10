@@ -1,8 +1,9 @@
 // src/components/NavBar.tsx
 import React, {useEffect, useState} from 'react';
 import {NavLink, useNavigate} from 'react-router-dom';
-import {useAuthContext} from '../contexts/AuthContext';
-import Spinner from "./Spinner";
+import {useAuthContext} from '../../contexts/AuthContext';
+import Spinner from "../common/Spinner";
+import nokkelhullLogo from "../../assets/images/nokkellhulllogo.svg";
 
 const Navbar: React.FC = () => {
     const {isAuthenticated, user, isLoading, logout} = useAuthContext();
@@ -39,10 +40,10 @@ const Navbar: React.FC = () => {
                 <div className="container-md container-fluid">
                     <NavLink to="/" className="navbar-brand d-flex align-items-center">
                         <img
-                            src="/assets/images/nokkellhulllogo.svg"
+                            src={nokkelhullLogo}
                             alt="Nøkkelhollet"
                             className="me-2"
-                            style={{height: '40px', width: 'auto'}}
+                            style={{height: '32px', width: 'auto'}}
                         />
                     </NavLink>
 

@@ -1,9 +1,10 @@
 import { useState, useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { FoodProductCreateUpdate } from '../types/foodProduct';
-import { categoriesApi } from '../api/categories';
-import { Button } from './Button';
-import {Select} from "./Select";
+import { FoodProductCreateUpdate } from '../../types/foodProduct';
+import { categoriesApi } from '../../api/categories';
+import { Button } from '../common/Button';
+import {Select} from "../common/Select";
+import {useEscapeKey} from "../../hooks/useEscapeKey";
 
 type FormErrors = Partial<Record<keyof FoodProductCreateUpdate, string>>;
 
@@ -32,6 +33,9 @@ export function CreateFoodProductModal({
     });
 
     const [errors, setErrors] = useState<FormErrors>({});
+
+    // Close modal on escape key press
+    useEscapeKey(onClose);
 
     const { data: categories = [] } = useQuery({
         queryKey: ['categories'],

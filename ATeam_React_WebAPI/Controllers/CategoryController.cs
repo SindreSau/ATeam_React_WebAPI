@@ -10,7 +10,6 @@ namespace ATeam_React_WebAPI.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
-[Authorize(Roles = "Admin")]
 public class CategoryController : ControllerBase
 {
   private readonly IFoodCategoryRepository _foodCategoryRepository;
@@ -68,6 +67,7 @@ public class CategoryController : ControllerBase
   // === CREATE ===
   // POST : api/category
   [HttpPost]
+  [Authorize(Roles="Admin")]
   public async Task<ActionResult<FoodCategoryDTO>> CreateCategory([FromBody] CategoryCreateDTO createDTO)
   {
     if (!ModelState.IsValid)
@@ -98,6 +98,7 @@ public class CategoryController : ControllerBase
 
   // === UPDATE ===
   [HttpPut("{id}")]
+  [Authorize(Roles="Admin")]
   public async Task<ActionResult<FoodCategoryDTO>> UpdateCategory(int id, [FromBody] CategoryCreateDTO updateDto)
   {
     if (!ModelState.IsValid)
@@ -134,6 +135,7 @@ public class CategoryController : ControllerBase
   // === DELETE Category === 
   // DELETE : api/category/{id}
   [HttpDelete("{id}")]
+  [Authorize(Roles="Admin")]
   public async Task<ActionResult> DeleteCategory(int id)
   {
     try

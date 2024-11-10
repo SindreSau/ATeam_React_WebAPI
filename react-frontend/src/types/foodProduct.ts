@@ -11,6 +11,7 @@ export interface FoodProduct {
     fiber: number;
     salt: number;
     nokkelhullQualified: boolean;
+    foodCategoryId: number;
     categoryName: string;
     createdByUsername: string;
 }

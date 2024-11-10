@@ -1,4 +1,5 @@
 import {useAuthContext} from "../contexts/AuthContext";
+import {AdminProductList} from "../components/AdminProductList";
 
 const Products = () => {
     const { user, isLoading } = useAuthContext();
@@ -15,7 +16,7 @@ const Products = () => {
                     {user?.role === 'Admin' && (
                         <div className="">
                             <p className="">You are signed in as an administrator.</p>
-                            <span>Render ADMIN component here</span>
+                            <AdminProductList />
                         </div>
                     )}
                     {user?.role === 'Vendor' && (

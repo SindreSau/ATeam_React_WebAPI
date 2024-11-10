@@ -6,7 +6,7 @@ import {FoodProductCard} from './FoodProductCard';
 import {SearchForm} from './SearchForm';
 import { CardEditModal } from './CardEditModal';
 
-export const FoodProductList: React.FC = () => {
+export const AdminProductList: React.FC = () => {
     const [searchParams, setSearchParams] = useSearchParams();
     const [foodProducts, setFoodProducts] = useState<FoodProduct[]>([]);
     const [loading, setLoading] = useState(true);

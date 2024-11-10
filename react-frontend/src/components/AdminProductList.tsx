@@ -8,6 +8,7 @@ import { SearchForm } from './SearchForm';
 import { CardEditModal } from './CardEditModal';
 import PaginationController from "./PaginationController";
 import Spinner from "./Spinner";
+import usePersistedState from "../hooks/usePersistedState";
 
 export const AdminProductList: React.FC = () => {
     const [searchParams, setSearchParams] = useSearchParams();
@@ -23,9 +24,26 @@ export const AdminProductList: React.FC = () => {
     const [currentPage, setCurrentPage] = useState(() =>
         Number(searchParams.get('page')) || 1
     );
-    const [pageSize, setPageSize] = useState(() =>
-        Number(searchParams.get('pageSize')) || pageSizeOptions[0]
+
+    const [pageSize, setPageSize] = usePersistedState(
+        'preferredPageSize',
+        pageSizeOptions[0]
     );
+
+    // Effect to sync persisted pageSize state with URL
+    useEffect(() => {
+        const urlPageSize = Number(searchParams.get('pageSize'));
+        if (urlPageSize && pageSizeOptions.includes(urlPageSize)) {
+            setPageSize(urlPageSize);
+        } else if (pageSize !== pageSizeOptions[0]) {
+            // If no valid URL pageSize, update URL with current pageSize
+            setSearchParams(prev => {
+                const newParams = new URLSearchParams(prev);
+                newParams.set('pageSize', pageSize.toString());
+                return newParams;
+            });
+        }
+    }, [searchParams, pageSize, setPageSize, setSearchParams, pageSizeOptions]);
 
     const openModal = (foodProductCard: FoodProduct) => {
         setCurrentFoodProductCard(foodProductCard);
@@ -75,7 +93,7 @@ export const AdminProductList: React.FC = () => {
 
     const handlePageSizeChange = (newPageSize: number) => {
         setPageSize(newPageSize);
-        setCurrentPage(1); // Reset to first page
+        setCurrentPage(1);
         setSearchParams(prev => {
             const newParams = new URLSearchParams(prev);
             newParams.set('pageSize', newPageSize.toString());
@@ -120,6 +138,7 @@ export const AdminProductList: React.FC = () => {
     }
 
     if (error) {
+        // TODO: Replace this with toast or alert component
         return <div>Error: {error}</div>;
     }
 

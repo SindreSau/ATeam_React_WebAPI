@@ -3,6 +3,7 @@ import { useSearchParams } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { productsApi } from '../api/products';
 import usePersistedState from './usePersistedState';
+import { useMemo, useCallback } from 'react';
 
 export type ProductListMode = 'admin' | 'vendor';
 
@@ -21,48 +22,51 @@ interface ProductListParams {
 
 export const useProductList = ({ mode, storageKey }: UseProductListProps) => {
     const [searchParams, setSearchParams] = useSearchParams();
-    const pageSizeOptions = [2, 5, 10, 15];
 
-    // Get URL parameters
-    const currentPage = Number(searchParams.get('page')) || 1;
-    const orderBy = searchParams.get('orderBy') || 'createdat_desc';
-    const nokkelhullParam = searchParams.get('nokkelhull');
-    const nokkelhull: boolean | undefined = nokkelhullParam ? nokkelhullParam === 'true' : undefined;
+    // Memoize the current state values
+    const currentState = useMemo(() => ({
+        currentPage: Number(searchParams.get('page')) || 1,
+        orderBy: searchParams.get('orderBy') || 'createdat_desc',
+        nokkelhull: searchParams.get('nokkelhull') ? searchParams.get('nokkelhull') === 'true' : undefined,
+        search: searchParams.get('search') || '',
+    }), [searchParams]);
 
-    const urlPageSize = Number(searchParams.get('pageSize'));
-    const validUrlPageSize = pageSizeOptions.includes(urlPageSize) ? urlPageSize : null;
+    // Memoize pageSizeOptions
+    const pageSizeOptions = useMemo(() => [2, 5, 10, 20, 50], []);
 
+    // Memoize URL pageSize validation
+    const validUrlPageSize = useMemo(() => {
+        const urlPageSize = Number(searchParams.get('pageSize'));
+        return pageSizeOptions.includes(urlPageSize) ? urlPageSize : null;
+    }, [searchParams, pageSizeOptions]);
+
+    // Persisted pageSize state
     const [pageSize, setPageSize] = usePersistedState(
         storageKey,
-        pageSizeOptions[0],
+        pageSizeOptions[1],
         validUrlPageSize
     );
 
-    // Products query
-    const queryParams: ProductListParams = {
-        pageNumber: currentPage,
+    // Memoize query parameters
+    const queryParams = useMemo<ProductListParams>(() => ({
+        pageNumber: currentState.currentPage,
         pageSize,
-        searchTerm: searchParams.get('search') || '',
-        orderBy,
-        nokkelhull
-    };
+        searchTerm: currentState.search,
+        orderBy: currentState.orderBy,
+        nokkelhull: currentState.nokkelhull
+    }), [currentState, pageSize]);
 
-    const {
-        data,
-        isLoading,
-        isError,
-        error
-    } = useQuery({
+    // Query
+    const queryResult = useQuery({
         queryKey: [`${mode}Products`, queryParams],
-        queryFn: () => {
-            return mode === 'admin'
-                ? productsApi.getAdminProducts(queryParams)
-                : productsApi.getVendorProducts(queryParams);
-        },
+        queryFn: () => mode === 'admin'
+            ? productsApi.getAdminProducts(queryParams)
+            : productsApi.getVendorProducts(queryParams),
         select: (response) => response.data
     });
 
-    const updateSearchParams = (updates: Record<string, string>) => {
+    // Memoized update helper
+    const updateSearchParams = useCallback((updates: Record<string, string>) => {
         setSearchParams(prev => {
             const newParams = new URLSearchParams(prev);
             Object.entries(updates).forEach(([key, value]) => {
@@ -74,63 +78,60 @@ export const useProductList = ({ mode, storageKey }: UseProductListProps) => {
             });
             return newParams;
         });
-    };
+    }, [setSearchParams]);
 
-    const handlePageChange = (page: number) => {
+    // Memoized handlers
+    const handlePageChange = useCallback((page: number) => {
         updateSearchParams({ page: page.toString() });
-    };
+    }, [updateSearchParams]);
 
-    const handlePageSizeChange = (newPageSize: number) => {
+    const handlePageSizeChange = useCallback((newPageSize: number) => {
         updateSearchParams({
             pageSize: newPageSize.toString(),
             page: '1'
         });
         setPageSize(newPageSize);
-    };
+    }, [updateSearchParams, setPageSize]);
 
-    const handleSearch = (search: string) => {
+    const handleSearch = useCallback((search: string) => {
         updateSearchParams({
             search,
             page: '1'
         });
-    };
+    }, [updateSearchParams]);
 
-    const handleSort = (value: string) => {
+    const handleSort = useCallback((value: string) => {
         updateSearchParams({
             orderBy: value,
             page: '1'
         });
-    };
+    }, [updateSearchParams]);
 
-    const handleNokkelhullFilter = (value: boolean | null) => {
-        if (value === null) {
-            setSearchParams(prev => {
-                const newParams = new URLSearchParams(prev);
+    const handleNokkelhullFilter = useCallback((value: boolean | null) => {
+        setSearchParams(prev => {
+            const newParams = new URLSearchParams(prev);
+            if (value === null) {
                 newParams.delete('nokkelhull');
-                newParams.set('page', '1');
-                return newParams;
-            });
-        } else {
-            setSearchParams(prev => {
-                const newParams = new URLSearchParams(prev);
+            } else {
                 newParams.set('nokkelhull', value.toString());
-                newParams.set('page', '1');
-                return newParams;
-            });
-        }
-    };
+            }
+            newParams.set('page', '1');
+            return newParams;
+        });
+    }, [setSearchParams]);
 
     return {
-        // State
-        data,
-        isLoading,
-        isError,
-        error,
+        // Data and loading states
+        data: queryResult.data,
+        isLoading: queryResult.isLoading,
+        isFetching: queryResult.isFetching,
+        isError: queryResult.isError,
+        error: queryResult.error,
 
-        // Params
-        currentPage,
-        orderBy,
-        nokkelhull,
+        // Current state
+        currentPage: currentState.currentPage,
+        orderBy: currentState.orderBy,
+        nokkelhull: currentState.nokkelhull,
         pageSize,
         pageSizeOptions,
         searchParams,

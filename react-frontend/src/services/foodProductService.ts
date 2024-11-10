@@ -49,7 +49,9 @@ export const updateFoodProduct = async (foodProduct: FoodProduct): Promise<FoodP
         foodCategoryId: foodProduct.foodCategoryId // where do we get this from?
     };
 
-    const response = await fetch(`https://localhost:5001/api/vendor/${foodProduct.productId}`, {
+    console.log('Update DTO:', updateDto);
+
+    const response = await fetch(`https://localhost:5001/api/admin/${foodProduct.productId}`, {
         method: 'PUT',
         headers: {
             'Content-Type': 'application/json',

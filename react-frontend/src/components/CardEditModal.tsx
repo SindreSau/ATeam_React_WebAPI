@@ -9,7 +9,12 @@ interface CardEditModalProps {
 }
 
 export const CardEditModal: React.FC<CardEditModalProps> = ({ foodProduct, show, onClose, onSave }) => {
-    const [editedProduct, setEditedProduct] = useState<FoodProduct>(foodProduct);
+    console.log('Incoming foodProduct:', foodProduct);
+
+    const [editedProduct, setEditedProduct] = useState<FoodProduct>({
+        ...foodProduct,
+        foodCategoryId: foodProduct.foodCategoryId  // Explicitly set this
+    });
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -21,9 +26,12 @@ export const CardEditModal: React.FC<CardEditModalProps> = ({ foodProduct, show,
         const { name, value, type } = e.target;
         setEditedProduct(prev => ({ 
             ...prev, 
-            [name]: type === 'number' ? parseFloat(value) : value 
+            [name]: type === 'number' ? parseFloat(value) : value,
+            foodCategoryId: prev.foodCategoryId
         }));
     };
+
+    console.log('Current editedProduct:', editedProduct);
 
     if (!show) return null;
 
@@ -117,6 +125,20 @@ export const CardEditModal: React.FC<CardEditModalProps> = ({ foodProduct, show,
                                     onChange={handleChange}
                                     required
                                 />
+                            </div>
+                            <div className="mb-3">
+                                <label className="form-label">Category</label>
+                                <input
+                                    type="text"
+                                    className="form-control"
+                                    value={editedProduct.categoryName}
+                                    disabled
+                                />
+                                <input
+                                    type="hidden"
+                                    name="foodCategoryId"
+                                    value={editedProduct.foodCategoryId}
+        />
                             </div>
                         </div>
                         <div className="modal-footer">

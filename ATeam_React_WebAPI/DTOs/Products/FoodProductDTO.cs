@@ -18,6 +18,7 @@ namespace ATeam_React_WebAPI.DTOs.Products
 
     // Nokkelhull + Category
     public bool NokkelhullQualified { get; set; }
+    public int FoodCategoryId { get; set; }
     public string CategoryName { get; set; } = string.Empty;
 
     // User info - needed for Admin, can be hidden in Vendor view in Front-end

@@ -3,7 +3,7 @@
 import {Link} from "react-router-dom";
 import {useAuthContext} from "../contexts/AuthContext";
 import React from "react";
-import Spinner from "../components/Spinner";
+import Spinner from "../components/common/Spinner";
 
 const Home = () => {
     const { user, isLoading } = useAuthContext();

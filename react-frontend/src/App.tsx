@@ -3,10 +3,10 @@ import {QueryProvider} from './providers/QueryProvider';
 import {Routes, Route, BrowserRouter} from 'react-router-dom';
 import Home from "./pages/Home";
 import Products from "./pages/Products";
-import MainLayout from "./components/MainLayout";
+import MainLayout from "./components/layout/MainLayout";
 import {AuthProvider} from "./contexts/AuthContext";
 import Login from "./pages/Login";
-import {ProtectedRoute} from "./components/ProtectedRoute";
+import {ProtectedRoute} from "./components/common/ProtectedRoute";
 import Register from "./pages/Register";
 import Categories from "./pages/Categories";
 

@@ -7,6 +7,14 @@ interface PageSizeSelectorProps {
     onChange: (value: number) => void;
 }
 
+/**
+ * PageSizeSelector component for selecting the number of items per page.
+ * This component is being used in the PaginationController component.
+ *
+ * @param {number} currentSize - The current selected page size.
+ * @param {number[]} selectOptions - The available options for page sizes.
+ * @param {function} onChange - Callback function to handle page size change.
+ */
 export const PageSizeSelector = ({
                                      currentSize,
                                      selectOptions,

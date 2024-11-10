@@ -2,7 +2,7 @@
 import React, {useState} from 'react';
 import {Link, useNavigate} from 'react-router-dom';
 import {useAuthContext} from '../contexts/AuthContext';
-import Spinner from '../components/Spinner';
+import Spinner from '../components/common/Spinner';
 
 const Login: React.FC = () => {
     const {login} = useAuthContext();

@@ -1,4 +1,5 @@
 import {PageSizeSelector} from "./PageSizeSelector";
+import {memo} from "react";
 
 
 interface PaginationProps {
@@ -20,7 +21,20 @@ interface PaginationProps {
     maxVisiblePages?: number;
 }
 
-const PaginationController = ({
+/**
+ * PaginationController component for handling pagination controls.
+ * This component takes use of the other component: PageSizeSelector.
+ *
+ * @param {number} currentPage - Current active page number.
+ * @param {number} totalPages - Total number of pages.
+ * @param {number} pageSize - Number of items to display per page.
+ * @param {number} totalItems - Total number of items across all pages.
+ * @param {function} onPageChange - Callback when page number changes.
+ * @param {function} onPageSizeChange - Callback when page size changes.
+ * @param {number[]} [pageSizeOptions=[2, 5, 10, 15]] - Available options for items per page.
+ * @param {number} [maxVisiblePages=5] - Maximum number of page buttons to show.
+ */
+const PaginationController = memo(({
                                   currentPage,
                                   totalPages,
                                   pageSize,
@@ -154,6 +168,8 @@ const PaginationController = ({
             </nav>
         </div>
     );
-};
+});
+
+PaginationController.displayName = 'PaginationController';
 
 export default PaginationController;

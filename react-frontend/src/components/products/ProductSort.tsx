@@ -1,5 +1,5 @@
 // ProductSort.tsx
-import { Select } from './Select';
+import { Select } from '../common/Select';
 
 interface ProductSortProps {
     value: string;

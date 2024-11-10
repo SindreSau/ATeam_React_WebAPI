@@ -1,7 +1,7 @@
 import {useAuthContext} from "../contexts/AuthContext";
-import {AdminProductList} from "../components/AdminProductList";
-import Spinner from "../components/Spinner";
-import {VendorProductList} from "../components/VendorProductList";
+import {AdminProductList} from "../components/products/AdminProductList";
+import Spinner from "../components/common/Spinner";
+import {VendorProductList} from "../components/products/VendorProductList";
 
 const Products = () => {
     const {user, isLoading} = useAuthContext();

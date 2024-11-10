@@ -95,7 +95,7 @@ const Navbar: React.FC = () => {
 
                         <div className="nav-item mx-2">
                             <button className="btn px-2" onClick={toggleTheme}>
-                                <i className={`fas ${theme === 'dark' ? 'fa-sun' : 'fa-moon'} theme-icon-transition`}/>
+                                <i className={`fas ${theme === 'dark' ? 'fa-sun' : 'fa-moon'}`}/>
                             </button>
                         </div>
 

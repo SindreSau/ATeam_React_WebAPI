@@ -1,24 +1,32 @@
 // src/components/AdminProductList.tsx
-import { useState } from 'react';
-import { FoodProduct } from '../types/foodProduct';
-import { SearchForm } from './SearchForm';
-import { FoodProductCard } from './FoodProductCard';
+import {useState} from 'react';
+import {FoodProduct} from '../types/foodProduct';
+import {SearchForm} from './SearchForm';
+import {FoodProductCard} from './FoodProductCard';
 import PaginationController from './PaginationController';
 import Spinner from './Spinner';
-import { CardEditModal } from './CardEditModal';
-import { NokkelhullFilter } from './NokkelHullFilter';
-import { ProductSort } from './ProductSort';
+import {CardEditModal} from './CardEditModal';
+import {NokkelhullFilter} from './NokkelHullFilter';
+import {ProductSort} from './ProductSort';
 import ConfirmationModal from "./ConfirmationModal";
-import { useProductMutations } from "../hooks/useProductMutations";
-import { useProductList } from "../hooks/useProductList";
+import {useProductMutations} from "../hooks/useProductMutations";
+import {useProductList} from "../hooks/useProductList";
+import Toast from "./Toast";
 
 export const AdminProductList = () => {
     // Local state for modals
     const [editModalProduct, setEditModalProduct] = useState<FoodProduct | null>(null);
     const [deleteModalProduct, setDeleteModalProduct] = useState<FoodProduct | null>(null);
 
+    // Toast state
+    const [toast, setToast] = useState<{
+        type: 'success' | 'error';
+        message: string;
+        isVisible: boolean;
+    } | null>(null);
+
     // Mutations and product list hook
-    const { updateMutation, deleteMutation } = useProductMutations();
+    const {updateMutation, deleteMutation} = useProductMutations();
     const {
         data,
         isLoading,
@@ -58,7 +66,17 @@ export const AdminProductList = () => {
                 product: updateDto
             });
             setEditModalProduct(null);
+            setToast({
+                type: 'success',
+                message: `${updatedProduct.productName} was successfully updated!`,
+                isVisible: true
+            });
         } catch (error) {
+            setToast({
+                type: 'error',
+                message: 'Failed to update product. Please try again.',
+                isVisible: true
+            });
             console.error('Failed to update product:', error);
         }
     };
@@ -68,13 +86,23 @@ export const AdminProductList = () => {
 
         try {
             await deleteMutation.mutateAsync(deleteModalProduct.productId);
+            setToast({
+                type: 'success',
+                message: `${deleteModalProduct.productName} was successfully deleted!`,
+                isVisible: true
+            });
             setDeleteModalProduct(null);
         } catch (error) {
+            setToast({
+                type: 'error',
+                message: 'Failed to delete product. Please try again.',
+                isVisible: true
+            });
             console.error('Failed to delete product:', error);
         }
     };
 
-    if (isLoading) return <Spinner />;
+    if (isLoading) return <Spinner/>;
     if (isError) return <div className="alert alert-danger">Error: {(error as Error).message}</div>;
 
     return (
@@ -83,7 +111,7 @@ export const AdminProductList = () => {
                 <h1 className="h3">All Products</h1>
 
                 <div className="d-flex gap-3 align-items-center">
-                    <ProductSort value={orderBy} onChange={handleSort} />
+                    <ProductSort value={orderBy} onChange={handleSort}/>
                     <NokkelhullFilter
                         value={nokkelhull === undefined ? null : nokkelhull}
                         onChange={handleNokkelhullFilter}
@@ -106,6 +134,8 @@ export const AdminProductList = () => {
                             onEdit={() => setEditModalProduct(product)}
                             onDelete={() => setDeleteModalProduct(product)}
                             isDeleting={deleteMutation.isPending && deleteModalProduct?.productId === product.productId}
+                            displayEditButton={false}
+                            displayDeleteButton={false}
                         />
                     </div>
                 ))}
@@ -152,6 +182,20 @@ export const AdminProductList = () => {
                 primaryButtonVariant="danger"
                 isLoading={deleteMutation.isPending}
             />
+
+
+            {/* Add right before the closing div of the container */}
+            {toast && (
+                <Toast
+                    type={toast.type}
+                    message={toast.message}
+                    isVisible={toast.isVisible}
+                    onClose={() => setToast(null)}
+                    autoDismiss={true}
+                    autoDismissTimeout={2000} // Toast will disappear after 2 seconds
+                    title={toast.type === 'success' ? 'Success' : 'Error'}
+                />
+            )}
         </div>
     );
 };

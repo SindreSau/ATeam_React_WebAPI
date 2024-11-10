@@ -1,17 +1,18 @@
-import { useState } from 'react';
-import { FoodProduct, FoodProductCreateUpdate } from '../types/foodProduct';
-import { SearchForm } from './SearchForm';
-import { FoodProductCard } from './FoodProductCard';
+import {useState} from 'react';
+import {FoodProduct, FoodProductCreateUpdate} from '../types/foodProduct';
+import {SearchForm} from './SearchForm';
+import {FoodProductCard} from './FoodProductCard';
 import PaginationController from './PaginationController';
 import Spinner from './Spinner';
-import { Button } from './Button';
-import { CreateFoodProductModal } from './CreateFoodProductModal';
-import { CardEditModal } from './CardEditModal';
-import { NokkelhullFilter } from './NokkelHullFilter';
-import { ProductSort } from './ProductSort';
+import {Button} from './Button';
+import {CreateFoodProductModal} from './CreateFoodProductModal';
+import {CardEditModal} from './CardEditModal';
+import {NokkelhullFilter} from './NokkelHullFilter';
+import {ProductSort} from './ProductSort';
 import ConfirmationModal from "./ConfirmationModal";
-import { useProductMutations } from "../hooks/useProductMutations";
-import { useProductList } from "../hooks/useProductList";
+import {useProductMutations} from "../hooks/useProductMutations";
+import {useProductList} from "../hooks/useProductList";
+import Toast from "./Toast";
 
 export const VendorProductList = () => {
     // Local state for modals
@@ -19,8 +20,15 @@ export const VendorProductList = () => {
     const [editModalProduct, setEditModalProduct] = useState<FoodProduct | null>(null);
     const [deleteModalProduct, setDeleteModalProduct] = useState<FoodProduct | null>(null);
 
+    // Toast state
+    const [toast, setToast] = useState<{
+        type: 'success' | 'error';
+        message: string;
+        isVisible: boolean;
+    } | null>(null);
+
     // Mutations and product list hook
-    const { createMutation, updateMutation, deleteMutation } = useProductMutations();
+    const {createMutation, updateMutation, deleteMutation} = useProductMutations();
     const {
         data,
         isLoading,
@@ -47,7 +55,17 @@ export const VendorProductList = () => {
         try {
             await createMutation.mutateAsync(data);
             setIsCreateModalOpen(false);
+            setToast({
+                type: 'success',
+                message: 'Product created successfully!',
+                isVisible: true
+            });
         } catch (error) {
+            setToast({
+                type: 'error',
+                message: 'Failed to create product. Please try again.',
+                isVisible: true
+            });
             console.error('Failed to create product:', error);
         }
     };
@@ -70,7 +88,17 @@ export const VendorProductList = () => {
                 product: updateDto
             });
             setEditModalProduct(null);
+            setToast({
+                type: 'success',
+                message: 'Product updated successfully!',
+                isVisible: true
+            });
         } catch (error) {
+            setToast({
+                type: 'error',
+                message: 'Failed to update product. Please try again.',
+                isVisible: true
+            });
             console.error('Failed to update product:', error);
         }
     };
@@ -81,12 +109,22 @@ export const VendorProductList = () => {
         try {
             await deleteMutation.mutateAsync(deleteModalProduct.productId);
             setDeleteModalProduct(null);
+            setToast({
+                type: 'success',
+                message: 'Product deleted successfully!',
+                isVisible: true
+            });
         } catch (error) {
+            setToast({
+                type: 'error',
+                message: 'Failed to delete product. Please try again.',
+                isVisible: true
+            });
             console.error('Failed to delete product:', error);
         }
     };
 
-    if (isLoading) return <Spinner />;
+    if (isLoading) return <Spinner/>;
     if (isError) return <div className="alert alert-danger">Error: {(error as Error).message}</div>;
 
     return (
@@ -95,7 +133,7 @@ export const VendorProductList = () => {
                 <h1 className="h3">My Products</h1>
 
                 <div className="d-flex gap-3 align-items-center">
-                    <ProductSort value={orderBy} onChange={handleSort} />
+                    <ProductSort value={orderBy} onChange={handleSort}/>
                     <NokkelhullFilter
                         value={nokkelhull === undefined ? null : nokkelhull}
                         onChange={handleNokkelhullFilter}
@@ -181,6 +219,19 @@ export const VendorProductList = () => {
                 primaryButtonVariant="danger"
                 isLoading={deleteMutation.isPending}
             />
+
+            {/* Toast */}
+            {toast && (
+                <Toast
+                    type={toast.type}
+                    message={toast.message}
+                    isVisible={toast.isVisible}
+                    onClose={() => setToast(null)}
+                    autoDismiss={true}
+                    autoDismissTimeout={2000} // Toast will disappear after 2 seconds
+                    title={toast.type === 'success' ? 'Success' : 'Error'}
+                />
+            )}
         </div>
     );
 };

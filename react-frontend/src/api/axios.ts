@@ -36,7 +36,7 @@ api.interceptors.response.use(
                     break;
                 case 403:
                     console.error('Forbidden - 403:', data);
-                    alert('You do not have permission to perform this action.');
+                    console.warn('You do not have permission to perform this action.');
                     break;
                 case 404:
                     console.error('Not Found - 404:', data);

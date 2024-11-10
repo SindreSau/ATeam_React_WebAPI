@@ -10,7 +10,7 @@ import PaginationController from "./PaginationController";
 import Spinner from "./Spinner";
 import usePersistedState from "../hooks/usePersistedState";
 
-export const AdminProductList: React.FC = () => {
+export const AdminProductList = () => {
     const [searchParams, setSearchParams] = useSearchParams();
     const [foodProducts, setFoodProducts] = useState<FoodProduct[]>([]);
     const [loading, setLoading] = useState(true);
@@ -25,9 +25,13 @@ export const AdminProductList: React.FC = () => {
         Number(searchParams.get('page')) || 1
     );
 
+    const urlPageSize = Number(searchParams.get('pageSize'));
+    const validUrlPageSize = pageSizeOptions.includes(urlPageSize) ? urlPageSize : null;
+
     const [pageSize, setPageSize] = usePersistedState(
         'preferredPageSize',
-        pageSizeOptions[0]
+        pageSizeOptions[0],
+        validUrlPageSize
     );
 
     // Effect to sync persisted pageSize state with URL

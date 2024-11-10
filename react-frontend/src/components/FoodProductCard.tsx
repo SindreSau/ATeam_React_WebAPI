@@ -7,13 +7,17 @@ interface FoodProductCardProps {
     onDelete: (productId: number) => Promise<void> | void;
     onEdit: (foodProduct: FoodProduct) => void;
     isDeleting?: boolean;
+    displayEditButton?: boolean;
+    displayDeleteButton?: boolean;
 }
 
 export const FoodProductCard: React.FC<FoodProductCardProps> = ({
                                                                     foodProduct,
                                                                     onDelete,
                                                                     onEdit,
-                                                                    isDeleting = false
+                                                                    isDeleting = false,
+                                                                    displayEditButton = true, // Use to hide button in AdminProductList
+                                                                    displayDeleteButton = true // Use to hide button in AdminProductList
                                                                 }) => {
     const nutritionBadges = [
         { label: 'Energy', value: `${foodProduct.energyKcal.toFixed(0)} kcal` },
@@ -66,6 +70,7 @@ export const FoodProductCard: React.FC<FoodProductCardProps> = ({
 
             <div className="card-footer border-top mt-auto">
                 <div className="d-flex gap-2">
+                    {displayEditButton && (
                     <Button
                         variant="outline-light"
                         onClick={() => onEdit(foodProduct)}
@@ -74,6 +79,8 @@ export const FoodProductCard: React.FC<FoodProductCardProps> = ({
                         <i className="fa fa-pencil me-1"></i>
                         Edit
                     </Button>
+                    )}
+                    {displayDeleteButton && (
                     <Button
                         variant="outline-danger"
                         onClick={handleDelete}
@@ -87,6 +94,7 @@ export const FoodProductCard: React.FC<FoodProductCardProps> = ({
                         )}
                         Delete
                     </Button>
+                    )}
                 </div>
             </div>
         </div>

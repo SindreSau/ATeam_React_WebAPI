@@ -12,12 +12,20 @@ import { ProductSort } from './ProductSort';
 import ConfirmationModal from "./ConfirmationModal";
 import { useProductMutations } from "../hooks/useProductMutations";
 import { useProductList } from "../hooks/useProductList";
+import Toast from "./Toast";
 
 export const VendorProductList = () => {
     // Local state for modals
     const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
     const [editModalProduct, setEditModalProduct] = useState<FoodProduct | null>(null);
     const [deleteModalProduct, setDeleteModalProduct] = useState<FoodProduct | null>(null);
+
+    // Toast state
+    const [toast, setToast] = useState<{
+        type: 'success' | 'error';
+        message: string;
+        isVisible: boolean;
+    } | null>(null);
 
     // Mutations and product list hook
     const { createMutation, updateMutation, deleteMutation } = useProductMutations();
@@ -47,7 +55,17 @@ export const VendorProductList = () => {
         try {
             await createMutation.mutateAsync(data);
             setIsCreateModalOpen(false);
+            setToast({
+                type: 'success',
+                message: 'Product created successfully!',
+                isVisible: true
+            });
         } catch (error) {
+            setToast({
+                type: 'error',
+                message: 'Failed to create product. Please try again.',
+                isVisible: true
+            });
             console.error('Failed to create product:', error);
         }
     };
@@ -70,7 +88,17 @@ export const VendorProductList = () => {
                 product: updateDto
             });
             setEditModalProduct(null);
+            setToast({
+                type: 'success',
+                message: 'Product updated successfully!',
+                isVisible: true
+            });
         } catch (error) {
+            setToast({
+                type: 'error',
+                message: 'Failed to update product. Please try again.',
+                isVisible: true
+            });
             console.error('Failed to update product:', error);
         }
     };
@@ -81,7 +109,17 @@ export const VendorProductList = () => {
         try {
             await deleteMutation.mutateAsync(deleteModalProduct.productId);
             setDeleteModalProduct(null);
+            setToast({
+                type: 'success',
+                message: 'Product deleted successfully!',
+                isVisible: true
+            });
         } catch (error) {
+            setToast({
+                type: 'error',
+                message: 'Failed to delete product. Please try again.',
+                isVisible: true
+            });
             console.error('Failed to delete product:', error);
         }
     };
@@ -181,6 +219,19 @@ export const VendorProductList = () => {
                 primaryButtonVariant="danger"
                 isLoading={deleteMutation.isPending}
             />
+
+            {/* Toast */}
+            {toast && (
+                <Toast
+                    type={toast.type}
+                    message={toast.message}
+                    isVisible={toast.isVisible}
+                    onClose={() => setToast(null)}
+                    autoDismiss={true}
+                    autoDismissTimeout={2000} // Toast will disappear after 2 seconds
+                    title={toast.type === 'success' ? 'Success' : 'Error'}
+                />
+            )}
         </div>
     );
 };

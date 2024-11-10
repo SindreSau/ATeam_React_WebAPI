@@ -1,17 +1,17 @@
-import { useState } from 'react';
-import { FoodProduct, FoodProductCreateUpdate } from '../types/foodProduct';
-import { SearchForm } from './SearchForm';
-import { FoodProductCard } from './FoodProductCard';
+import {useState} from 'react';
+import {FoodProduct, FoodProductCreateUpdate} from '../types/foodProduct';
+import {SearchForm} from './SearchForm';
+import {FoodProductCard} from './FoodProductCard';
 import PaginationController from './PaginationController';
 import Spinner from './Spinner';
-import { Button } from './Button';
-import { CreateFoodProductModal } from './CreateFoodProductModal';
-import { CardEditModal } from './CardEditModal';
-import { NokkelhullFilter } from './NokkelHullFilter';
-import { ProductSort } from './ProductSort';
+import {Button} from './Button';
+import {CreateFoodProductModal} from './CreateFoodProductModal';
+import {CardEditModal} from './CardEditModal';
+import {NokkelhullFilter} from './NokkelHullFilter';
+import {ProductSort} from './ProductSort';
 import ConfirmationModal from "./ConfirmationModal";
-import { useProductMutations } from "../hooks/useProductMutations";
-import { useProductList } from "../hooks/useProductList";
+import {useProductMutations} from "../hooks/useProductMutations";
+import {useProductList} from "../hooks/useProductList";
 import Toast from "./Toast";
 
 export const VendorProductList = () => {
@@ -28,7 +28,7 @@ export const VendorProductList = () => {
     } | null>(null);
 
     // Mutations and product list hook
-    const { createMutation, updateMutation, deleteMutation } = useProductMutations();
+    const {createMutation, updateMutation, deleteMutation} = useProductMutations();
     const {
         data,
         isLoading,
@@ -124,7 +124,7 @@ export const VendorProductList = () => {
         }
     };
 
-    if (isLoading) return <Spinner />;
+    if (isLoading) return <Spinner/>;
     if (isError) return <div className="alert alert-danger">Error: {(error as Error).message}</div>;
 
     return (
@@ -133,7 +133,7 @@ export const VendorProductList = () => {
                 <h1 className="h3">My Products</h1>
 
                 <div className="d-flex gap-3 align-items-center">
-                    <ProductSort value={orderBy} onChange={handleSort} />
+                    <ProductSort value={orderBy} onChange={handleSort}/>
                     <NokkelhullFilter
                         value={nokkelhull === undefined ? null : nokkelhull}
                         onChange={handleNokkelhullFilter}

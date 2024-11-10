@@ -1,18 +1,16 @@
-import {useState} from 'react';
+import {useCallback, useState} from 'react';
 import {FoodProduct, FoodProductCreateUpdate} from '../../types/foodProduct';
 import {SearchForm} from '../common/SearchForm';
-import {FoodProductCard} from './FoodProductCard';
-import PaginationController from '../common/PaginationController';
-import Spinner from '../common/Spinner';
-import {Button} from '../common/Button';
 import {CreateFoodProductModal} from '../modals/CreateFoodProductModal';
 import {CardEditModal} from '../modals/CardEditModal';
-import {NokkelhullFilter} from './NokkelHullFilter';
-import {ProductSort} from './ProductSort';
 import ConfirmationModal from "../modals/ConfirmationModal";
 import {useProductMutations} from "../../hooks/useProductMutations";
 import {useProductList} from "../../hooks/useProductList";
 import Toast from "../common/Toast";
+import {ProductGrid} from "./ProductGrid";
+import {ProductControls} from "./ProductControls";
+import {PaginationSection} from "./PaginationSection";
+import ProductGridSkeleton from "./ProductGridSkeleton";
 
 export const VendorProductList = () => {
     // Local state for modals
@@ -32,6 +30,7 @@ export const VendorProductList = () => {
     const {
         data,
         isLoading,
+        isFetching,
         isError,
         error,
         currentPage,
@@ -50,8 +49,24 @@ export const VendorProductList = () => {
         storageKey: 'vendorPreferredPageSize'
     });
 
-    // Handlers for mutations
-    const handleCreateProduct = async (data: FoodProductCreateUpdate) => {
+    // Memoized callbacks
+    const handleCreateModalOpen = useCallback(() => {
+        setIsCreateModalOpen(true);
+    }, []);
+
+    const handleCreateModalClose = useCallback(() => {
+        setIsCreateModalOpen(false);
+    }, []);
+
+    const handleEditProduct = useCallback((product: FoodProduct) => {
+        setEditModalProduct(product);
+    }, []);
+
+    const handleDeleteProduct = useCallback((product: FoodProduct) => {
+        setDeleteModalProduct(product);
+    }, []);
+
+    const handleCreateProduct = useCallback(async (data: FoodProductCreateUpdate) => {
         try {
             await createMutation.mutateAsync(data);
             setIsCreateModalOpen(false);
@@ -68,9 +83,9 @@ export const VendorProductList = () => {
             });
             console.error('Failed to create product:', error);
         }
-    };
+    }, [createMutation]);
 
-    const handleUpdateProduct = async (updatedProduct: FoodProduct) => {
+    const handleUpdateProduct = useCallback(async (updatedProduct: FoodProduct) => {
         try {
             const updateDto: FoodProductCreateUpdate = {
                 productName: updatedProduct.productName,
@@ -101,9 +116,9 @@ export const VendorProductList = () => {
             });
             console.error('Failed to update product:', error);
         }
-    };
+    }, [updateMutation]);
 
-    const handleDeleteConfirm = async () => {
+    const handleDeleteConfirm = useCallback(async () => {
         if (!deleteModalProduct) return;
 
         try {
@@ -122,31 +137,31 @@ export const VendorProductList = () => {
             });
             console.error('Failed to delete product:', error);
         }
-    };
+    }, [deleteMutation, deleteModalProduct]);
 
-    if (isLoading) return <Spinner/>;
-    if (isError) return <div className="alert alert-danger">Error: {(error as Error).message}</div>;
+    const handleCloseEditModal = useCallback(() => {
+        setEditModalProduct(null);
+    }, []);
+
+    const handleCloseDeleteModal = useCallback(() => {
+        setDeleteModalProduct(null);
+    }, []);
+
+    const handleCloseToast = useCallback(() => {
+        setToast(null);
+    }, []);
+
 
     return (
         <div className="container py-4">
-            <div className="d-flex justify-content-between align-items-center mb-4">
-                <h1 className="h3">My Products</h1>
-
-                <div className="d-flex gap-3 align-items-center">
-                    <ProductSort value={orderBy} onChange={handleSort}/>
-                    <NokkelhullFilter
-                        value={nokkelhull === undefined ? null : nokkelhull}
-                        onChange={handleNokkelhullFilter}
-                    />
-                    <Button
-                        variant="primary"
-                        onClick={() => setIsCreateModalOpen(true)}
-                    >
-                        <i className="fa fa-plus-circle me-2"></i>
-                        Add New Product
-                    </Button>
-                </div>
-            </div>
+            <ProductControls
+                orderBy={orderBy}
+                nokkelhull={nokkelhull}
+                onSort={handleSort}
+                onNokkelhullFilter={handleNokkelhullFilter}
+                onCreateClick={handleCreateModalOpen}
+                showCreateButton={true}
+            />
 
             <div className="mb-4">
                 <SearchForm
@@ -155,46 +170,33 @@ export const VendorProductList = () => {
                 />
             </div>
 
-            {/* Food Products grid */}
-            <div className="row g-4">
-                {data?.items.map((product: FoodProduct) => (
-                    <div key={product.productId} className="col-12 col-sm-6 col-lg-4">
-                        <FoodProductCard
-                            foodProduct={product}
-                            onEdit={() => setEditModalProduct(product)}
-                            onDelete={() => setDeleteModalProduct(product)}
-                            isDeleting={deleteMutation.isPending && deleteModalProduct?.productId === product.productId}
-                        />
-                    </div>
-                ))}
-            </div>
+            <ProductGrid
+                products={data?.items || []}
+                onEdit={handleEditProduct}
+                onDelete={handleDeleteProduct}
+                isDeleting={deleteMutation.isPending}
+                isLoading={isLoading || isFetching}
+                amountOfProducts={pageSize} // Show skeleton for the amount of products per page
+                deletingProductId={deleteModalProduct?.productId}
+            />
 
-            {data?.items.length === 0 && (
-                <div className="text-center my-4">No products found</div>
+            {data && data.totalCount > 0 && (
+                <PaginationSection
+                    currentPage={currentPage}
+                    totalPages={data.totalPages}
+                    pageSize={pageSize}
+                    totalCount={data.totalCount}
+                    pageSizeOptions={pageSizeOptions}
+                    onPageChange={handlePageChange}
+                    onPageSizeChange={handlePageSizeChange}
+                />
             )}
 
-            <div className="d-flex justify-content-between align-items-center mt-4">
-                {data && data.totalCount > 0 && (
-                    <PaginationController
-                        currentPage={currentPage}
-                        totalPages={data.totalPages}
-                        pageSize={pageSize}
-                        totalItems={data.totalCount}
-                        onPageChange={handlePageChange}
-                        onPageSizeChange={handlePageSizeChange}
-                        pageSizeOptions={pageSizeOptions}
-                    />
-                )}
-
-                <div className="text-muted">
-                    Total items: {data?.totalCount || 0}
-                </div>
-            </div>
 
             {/* Modals */}
             <CreateFoodProductModal
                 isOpen={isCreateModalOpen}
-                onClose={() => setIsCreateModalOpen(false)}
+                onClose={handleCreateModalClose}
                 onSubmit={handleCreateProduct}
                 isLoading={createMutation.isPending}
             />
@@ -203,15 +205,14 @@ export const VendorProductList = () => {
                 <CardEditModal
                     foodProduct={editModalProduct}
                     show={!!editModalProduct}
-                    onClose={() => setEditModalProduct(null)}
+                    onClose={handleCloseEditModal}
                     onSave={handleUpdateProduct}
                 />
             )}
 
-            {/* ConfirmationModal for deletion */}
             <ConfirmationModal
                 isOpen={!!deleteModalProduct}
-                onClose={() => setDeleteModalProduct(null)}
+                onClose={handleCloseDeleteModal}
                 onConfirm={handleDeleteConfirm}
                 title="Delete Product"
                 message={`Are you sure you want to delete "${deleteModalProduct?.productName}"? This action cannot be undone.`}
@@ -226,9 +227,9 @@ export const VendorProductList = () => {
                     type={toast.type}
                     message={toast.message}
                     isVisible={toast.isVisible}
-                    onClose={() => setToast(null)}
+                    onClose={handleCloseToast}
                     autoDismiss={true}
-                    autoDismissTimeout={2000} // Toast will disappear after 2 seconds
+                    autoDismissTimeout={2000}
                     title={toast.type === 'success' ? 'Success' : 'Error'}
                 />
             )}

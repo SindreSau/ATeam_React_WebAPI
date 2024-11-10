@@ -1,11 +1,11 @@
 // src/api/axios.ts
 import axios from 'axios';
 
-let baseURL = process.env.REACT_APP_API_URL + '/api' || 'https://localhost:5001/api';
+let baseURL = process.env.REACT_APP_API_URL || 'http://localhost:5001/api';
 
 // Create an axios instance
 const api = axios.create({
-    baseURL: baseURL,
+    baseURL: baseURL + '/api',
     withCredentials: true, // Important for sending cookies
     headers: {
         'Content-Type': 'application/json',

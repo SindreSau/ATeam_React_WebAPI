@@ -15,9 +15,9 @@ public static class DbSeeder
         using var scope = serviceProvider.CreateScope();
         var context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
 
-        // Ensure database is created and migrations are applied
+        // Ensure database is created
         await context.Database.EnsureCreatedAsync();
-        await context.Database.MigrateAsync();
+        // await context.Database.MigrateAsync();
 
         await SeedRoles(roleManager);
         await SeedAdmin(userManager);

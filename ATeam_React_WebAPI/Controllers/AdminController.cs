@@ -12,7 +12,7 @@ namespace ATeam_React_WebAPI.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
-//[Authorize(Roles = "Admin")]
+[Authorize(Roles = "Admin")]
 public class AdminController : ControllerBase
 {
   private readonly IFoodProductRepository _foodProductRepository;

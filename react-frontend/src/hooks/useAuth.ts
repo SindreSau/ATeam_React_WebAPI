@@ -6,6 +6,26 @@ import { AxiosError } from 'axios';
 export const useAuth = () => {
     const queryClient = useQueryClient();
 
+    const userQuery = useQuery({
+        queryKey: ['user'],
+        queryFn: async () => {
+            try {
+                console.log('Fetching user info...');
+                const response = await authApi.getUserInfo();
+                console.log('User info response:', response.data);
+                return response.data;
+            } catch (error) {
+                console.log('Error fetching user info:', error);
+                if ((error as AxiosError).response?.status === 401) {
+                    return null;
+                }
+                throw error;
+            }
+        },
+        retry: false,
+        staleTime: 1000 * 60 * 5,
+    });
+
     const loginMutation = useMutation({
         mutationFn: async (credentials: { email: string; password: string }) => {
             const response = await authApi.login(credentials);
@@ -72,5 +92,7 @@ export const useAuth = () => {
         login: loginMutation.mutateAsync,
         register: registerMutation.mutateAsync,
         logout: logoutMutation.mutateAsync,
+        userQuery,
+        loginMutation,
     };
 };

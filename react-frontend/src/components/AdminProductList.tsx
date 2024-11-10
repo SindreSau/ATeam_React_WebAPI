@@ -1,10 +1,13 @@
-import React, {useEffect, useState} from 'react';
-import {useSearchParams} from 'react-router-dom';
-import {FoodProduct} from '../types/foodProduct';
-import {fetchFoodProducts, updateFoodProduct} from '../services/foodProductService';
-import {FoodProductCard} from './FoodProductCard';
-import {SearchForm} from './SearchForm';
+// src/components/AdminProductList.tsx
+import React, { useEffect, useState } from 'react';
+import { useSearchParams } from 'react-router-dom';
+import { FoodProduct } from '../types/foodProduct';
+import { fetchFoodProducts, updateFoodProduct } from '../services/foodProductService';
+import { FoodProductCard } from './FoodProductCard';
+import { SearchForm } from './SearchForm';
 import { CardEditModal } from './CardEditModal';
+import PaginationController from "./PaginationController";
+import Spinner from "./Spinner";
 
 export const AdminProductList: React.FC = () => {
     const [searchParams, setSearchParams] = useSearchParams();
@@ -14,6 +17,15 @@ export const AdminProductList: React.FC = () => {
     const [totalCount, setTotalCount] = useState(0);
     const [modalOpen, setModalOpen] = useState(false);
     const [currentFoodProductCard, setCurrentFoodProductCard] = useState<FoodProduct | null>(null);
+    const pageSizeOptions = [2, 5, 10, 15];
+
+    // Pagination state
+    const [currentPage, setCurrentPage] = useState(() =>
+        Number(searchParams.get('page')) || 1
+    );
+    const [pageSize, setPageSize] = useState(() =>
+        Number(searchParams.get('pageSize')) || pageSizeOptions[0]
+    );
 
     const openModal = (foodProductCard: FoodProduct) => {
         setCurrentFoodProductCard(foodProductCard);
@@ -23,12 +35,14 @@ export const AdminProductList: React.FC = () => {
     const closeModal = () => {
         setModalOpen(false);
         setCurrentFoodProductCard(null);
-    }
+    };
 
     const handleUpdate = async (updatedProduct: FoodProduct) => {
         try {
             await updateFoodProduct(updatedProduct);
-            setFoodProducts(prev => prev.map(p => p.productId === updatedProduct.productId ? updatedProduct : p));
+            setFoodProducts(prev =>
+                prev.map(p => p.productId === updatedProduct.productId ? updatedProduct : p)
+            );
         } catch (error) {
             setError('Error updating food product');
         }
@@ -40,11 +54,43 @@ export const AdminProductList: React.FC = () => {
                 method: 'DELETE'
             });
             if (response.ok) {
-                setFoodProducts(products => products.filter(p => p.productId !== productId));
+                setFoodProducts(products =>
+                    products.filter(p => p.productId !== productId)
+                );
+                setTotalCount(prev => prev - 1);
             }
         } catch (error) {
             setError('Error deleting food product');
         }
+    };
+
+    const handlePageChange = (page: number) => {
+        setCurrentPage(page);
+        setSearchParams(prev => {
+            const newParams = new URLSearchParams(prev);
+            newParams.set('page', page.toString());
+            return newParams;
+        });
+    };
+
+    const handlePageSizeChange = (newPageSize: number) => {
+        setPageSize(newPageSize);
+        setCurrentPage(1); // Reset to first page
+        setSearchParams(prev => {
+            const newParams = new URLSearchParams(prev);
+            newParams.set('pageSize', newPageSize.toString());
+            newParams.set('page', '1');
+            return newParams;
+        });
+    };
+
+    const handleSearch = (search: string) => {
+        setCurrentPage(1); // Reset to first page on new search
+        setSearchParams({
+            search,
+            page: '1',
+            pageSize: pageSize.toString()
+        });
     };
 
     useEffect(() => {
@@ -53,8 +99,8 @@ export const AdminProductList: React.FC = () => {
                 setLoading(true);
                 const searchTerm = searchParams.get('search') || '';
                 const response = await fetchFoodProducts(searchTerm, {
-                    pageNumber: 1,
-                    pageSize: 10
+                    pageNumber: currentPage,
+                    pageSize: pageSize
                 });
                 setFoodProducts(response.items);
                 setTotalCount(response.totalCount);
@@ -67,10 +113,10 @@ export const AdminProductList: React.FC = () => {
         };
 
         loadProducts();
-    }, [searchParams]);
+    }, [searchParams, currentPage, pageSize]);
 
     if (loading) {
-        return <div>Loading...</div>;
+        return <Spinner />;
     }
 
     if (error) {
@@ -78,27 +124,47 @@ export const AdminProductList: React.FC = () => {
     }
 
     return (
-        <div>
-            <SearchForm 
-                initialSearch={searchParams.get('search') || ''} 
-                onSearch={(search) => setSearchParams({ search })}
+        <div className="container">
+            <SearchForm
+                initialSearch={searchParams.get('search') || ''}
+                onSearch={handleSearch}
             />
+
             <div className="row">
                 {foodProducts.map(product => (
                     <div key={product.productId} className="col-md-4 mb-4">
-                        <FoodProductCard 
+                        <FoodProductCard
                             foodProduct={product}
                             onEdit={() => openModal(product)}
-                            onDelete={handleDelete} 
+                            onDelete={handleDelete}
                         />
                     </div>
                 ))}
             </div>
+
             {foodProducts.length === 0 && (
-                <div>No products found</div>
+                <div className="text-center my-4">No products found</div>
             )}
-            {modalOpen && (
-                <CardEditModal foodProduct={currentFoodProductCard!} show={modalOpen} onClose={closeModal} onSave={handleUpdate} />
+
+            {totalCount > 0 && (
+                <PaginationController
+                    currentPage={currentPage}
+                    totalPages={Math.ceil(totalCount / pageSize)}
+                    pageSize={pageSize}
+                    totalItems={totalCount}
+                    onPageChange={handlePageChange}
+                    onPageSizeChange={handlePageSizeChange}
+                    pageSizeOptions={pageSizeOptions}
+                />
+            )}
+
+            {modalOpen && currentFoodProductCard && (
+                <CardEditModal
+                    foodProduct={currentFoodProductCard}
+                    show={modalOpen}
+                    onClose={closeModal}
+                    onSave={handleUpdate}
+                />
             )}
         </div>
     );

@@ -1,6 +1,7 @@
-import { useState } from 'react';
+import
+{ useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useQuery } from '@tanstack/react-query';
 import { productsApi } from '../api/products';
 import { FoodProduct, FoodProductCreateUpdate } from '../types/foodProduct';
 import { SearchForm } from './SearchForm';

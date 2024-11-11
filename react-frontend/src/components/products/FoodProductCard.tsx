@@ -7,17 +7,15 @@ interface FoodProductCardProps {
     onDelete: (productId: number) => Promise<void> | void;
     onEdit: (foodProduct: FoodProduct) => void;
     isDeleting?: boolean;
-    displayEditButton?: boolean;
-    displayDeleteButton?: boolean;
-}
+    mode: 'edit' | 'delete';
+};
 
 export const FoodProductCard: React.FC<FoodProductCardProps> = ({
                                                                     foodProduct,
                                                                     onDelete,
                                                                     onEdit,
                                                                     isDeleting = false,
-                                                                    displayEditButton = true, // Use to hide button in AdminProductList
-                                                                    displayDeleteButton = true // Use to hide button in AdminProductList
+                                                                    mode
                                                                 }) => {
     const nutritionBadges = [
         {label: 'Energy', value: `${foodProduct.energyKcal.toFixed(0)} kcal`},
@@ -70,7 +68,7 @@ export const FoodProductCard: React.FC<FoodProductCardProps> = ({
 
             <div className="card-footer border-top mt-auto">
                 <div className="d-flex gap-2">
-                    {displayEditButton && (
+                    {mode === 'edit' && (
                         <Button
                             variant="outline-secondary"
                             onClick={() => onEdit(foodProduct)}
@@ -80,7 +78,7 @@ export const FoodProductCard: React.FC<FoodProductCardProps> = ({
                             Edit
                         </Button>
                     )}
-                    {displayDeleteButton && (
+                    {mode === 'delete' && (
                         <Button
                             variant="outline-danger"
                             onClick={handleDelete}

@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { FoodProduct } from "../../types/foodProduct";
 import { Button } from "../common/Button";
+import FoodProductModal from "../modals/FoodProductModal";
 
 interface FoodProductCardProps {
   foodProduct: FoodProduct;
@@ -17,6 +18,7 @@ export const FoodProductCard: React.FC<FoodProductCardProps> = ({
   isDeleting = false,
   mode,
 }) => {
+  const [isModalOpen, setIsModalOpen] = useState(false);
   const nutritionBadges = [
     { label: "Energy", value: `${foodProduct.energyKcal.toFixed(0)} kcal` },
     { label: "Protein", value: `${foodProduct.protein.toFixed(1)} g` },
@@ -86,6 +88,7 @@ export const FoodProductCard: React.FC<FoodProductCardProps> = ({
         <div className="d-flex gap-2">
           <Button
             variant="outline-secondary"
+            onClick={() => setIsModalOpen(true)}
             aria-label={`View details for ${foodProduct.productName}`}
           >
             <i className="fa fa-info-circle me-1"></i>
@@ -97,24 +100,31 @@ export const FoodProductCard: React.FC<FoodProductCardProps> = ({
   );
 
   return (
-    <div className="card h-100 d-flex flex-column">
-      <div className="card-header border-bottom position-relative">
-        <div className="d-flex flex-column">
-          <h6 className="mb-2 fs-base">{foodProduct.productName}</h6>
-          <span className="text-muted fs-sm">{foodProduct.categoryName}</span>
-        </div>
-        {foodProduct.nokkelhullQualified && (
-          <div className="position-absolute top-0 end-0 mt-3 me-3">
-            <img
-              src="/favicon.png"
-              alt="Nøkkelhull Certified"
-              width="24"
-              height="24"
-            />
+    <>
+      <div className="card h-100 d-flex flex-column">
+        <div className="card-header border-bottom position-relative">
+          <div className="d-flex flex-column">
+            <h6 className="mb-2 fs-base">{foodProduct.productName}</h6>
+            <span className="text-muted fs-sm">{foodProduct.categoryName}</span>
           </div>
-        )}
+          {foodProduct.nokkelhullQualified && (
+            <div className="position-absolute top-0 end-0 mt-3 me-3">
+              <img
+                src="/favicon.png"
+                alt="Nøkkelhull Certified"
+                width="24"
+                height="24"
+              />
+            </div>
+          )}
+        </div>
+        {mode === "vendor" ? renderVendorContent() : renderAdminContent()}
       </div>
-      {mode === "vendor" ? renderVendorContent() : renderAdminContent()}
-    </div>
+      <FoodProductModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        foodProduct={foodProduct}
+      />
+    </>
   );
 };

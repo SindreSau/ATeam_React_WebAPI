@@ -96,31 +96,31 @@ const Register: React.FC = () => {
                     <div className="card">
                         <div className="card-body">
                             <h2 className="card-title text-center mb-4">Register</h2>
-
                             {error && (
                                 <div className="alert alert-danger" role="alert">
                                     {error}
                                 </div>
                             )}
-
                             <form onSubmit={handleSubmit}>
-                                <div className="mb-3">
-                                    <label htmlFor="email" className="form-label">
-                                        Email address
-                                    </label>
-                                    <input
-                                        type="email"
-                                        className={`form-control ${emailError ? 'is-invalid' : ''}`}
-                                        id="email"
-                                        value={email}
-                                        onChange={(e) => {
-                                            setEmail(e.target.value);
-                                            validateEmail(e.target.value);
-                                        }}
-                                        required
-                                        autoComplete="email"
-                                        disabled={isSubmitting}
-                                    />
+                                <div className="input-group has-validation">
+                                    <span className="input-group-text">@</span>
+                                    <div className="form-floating is-invalid">
+                                        <input
+                                            type="email"
+                                            className={`form-control ${emailError ? 'is-invalid' : ''}`}
+                                            id="email"
+                                            placeholder='email'
+                                            value={email}
+                                            onChange={(e) => {
+                                                setEmail(e.target.value);
+                                                validateEmail(e.target.value);
+                                            }}
+                                            required
+                                            autoComplete="email"
+                                            disabled={isSubmitting}
+                                        />
+                                        <label htmlFor='email'>Email address</label>
+                                    </div>
                                     {emailError && (
                                         <div className="invalid-feedback">
                                             {emailError}
@@ -128,55 +128,57 @@ const Register: React.FC = () => {
                                     )}
                                 </div>
 
-                                <div className="mb-3">
-                                    <label htmlFor="password" className="form-label">
-                                        Password
-                                    </label>
-                                    <input
-                                        type="password"
-                                        className={`form-control ${passwordError ? 'is-invalid' : ''}`}
-                                        id="password"
-                                        value={password}
-                                        onChange={(e) => {
-                                            setPassword(e.target.value);
-                                            if (e.target.value.length < 6) {
-                                                setPasswordError('Password must be at least 6 characters long');
-                                            } else {
-                                                setPasswordError(null);
-                                            }
-                                        }}
-                                        required
-                                        autoComplete="new-password"
-                                        disabled={isSubmitting}
-                                    />
+                                <div className="input-group has-validation">
+                                    <div className='form-floating is-invalid'>
+                                        <input
+                                            type="password"
+                                            className={`form-control ${passwordError ? 'is-invalid' : ''}`}
+                                            id="password"
+                                            placeholder='password'
+                                            value={password}
+                                            onChange={(e) => {
+                                                setPassword(e.target.value);
+                                                if (e.target.value.length < 6) {
+                                                    setPasswordError('Password must be at least 6 characters long');
+                                                } else {
+                                                    setPasswordError(null);
+                                                }
+                                            }}
+                                            required
+                                            autoComplete="new-password"
+                                            disabled={isSubmitting}
+                                        />
+                                        <label htmlFor='password'>Password</label>
+                                    </div>
                                     {passwordError && (
-                                        <div className="invalid-feedback">
-                                            {passwordError}
-                                        </div>
+                                            <div className="invalid-feedback">
+                                                {passwordError}
+                                            </div>
                                     )}
                                 </div>
 
-                                <div className="mb-4">
-                                    <label htmlFor="confirmPassword" className="form-label">
-                                        Confirm Password
-                                    </label>
-                                    <input
-                                        type="password"
-                                        className={`form-control ${confirmPasswordError ? 'is-invalid' : ''}`}
-                                        id="confirmPassword"
-                                        value={confirmPassword}
-                                        onChange={(e) => {
-                                            setConfirmPassword(e.target.value);
-                                            if (e.target.value !== password) {
-                                                setConfirmPasswordError("Passwords don't match");
-                                            } else {
-                                                setConfirmPasswordError(null);
-                                            }
-                                        }}
-                                        required
-                                        autoComplete="new-password"
-                                        disabled={isSubmitting}
-                                    />
+                                <div className="input-group has-validation">
+                                    <div className='form-floating is-invalid'>
+                                        <input
+                                            type="password"
+                                            className={`form-control ${confirmPasswordError ? 'is-invalid' : ''}`}
+                                            id="confirmPassword"
+                                            placeholder='password'
+                                            value={confirmPassword}
+                                            onChange={(e) => {
+                                                setConfirmPassword(e.target.value);
+                                                if (e.target.value !== password) {
+                                                    setConfirmPasswordError("Passwords don't match");
+                                                } else {
+                                                    setConfirmPasswordError(null);
+                                                }
+                                            }}
+                                            required
+                                            autoComplete="new-password"
+                                            disabled={isSubmitting}
+                                        />
+                                        <label htmlFor="confirmPassword">Confirm password</label>
+                                    </div>
                                     {confirmPasswordError && (
                                         <div className="invalid-feedback">
                                             {confirmPasswordError}
@@ -214,14 +216,13 @@ const Register: React.FC = () => {
                                     >
                                         Login here
                                     </Link>
-                            </span>
+                                </span>
                             </div>
-
                         </div>
                     </div>
                 </div>
-            </div>
-        </div>
+            </div>    
+        </div>    
     );
 };
 

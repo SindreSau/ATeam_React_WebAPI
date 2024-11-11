@@ -110,7 +110,7 @@ using (var scope = app.Services.CreateScope())
         if (app.Environment.IsDevelopment())
         {
             Log.Information("Development environment detected, seeding test data...");
-            await DbSeeder.SeedTestVendorWithTestProducts(userManager, context);
+            await DbSeeder.SeedTestVendorsWithProducts(userManager, context);
         }
 
         Log.Information("Database seeding completed successfully");

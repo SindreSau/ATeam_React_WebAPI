@@ -143,8 +143,7 @@ export const AdminProductList = () => {
                 isLoading={isLoading}
                 amountOfProducts={pageSize}
                 deletingProductId={deleteModalProduct?.productId}
-                displayEditButton={false}
-                displayDeleteButton={false}
+                mode="admin"
             />
 
             {data && data.totalCount > 0 && (

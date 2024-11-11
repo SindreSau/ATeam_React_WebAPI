@@ -173,6 +173,7 @@ export const VendorProductList = () => {
                 isLoading={isLoading || isFetching}
                 amountOfProducts={pageSize} // Show skeleton for the amount of products per page
                 deletingProductId={deleteModalProduct?.productId}
+                mode="vendor"
             />
 
             {data && data.totalCount > 0 && (

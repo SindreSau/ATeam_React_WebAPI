@@ -12,8 +12,8 @@ interface ProductGridProps {
     isLoading?: boolean;
     amountOfProducts?: number;
     deletingProductId?: number;
-    displayEditButton?: boolean;
-    displayDeleteButton?: boolean;
+    mode: 'admin' | 'vendor';
+    
 }
 
 export const ProductGrid = memo(({
@@ -24,8 +24,7 @@ export const ProductGrid = memo(({
                                      isLoading,
                                      amountOfProducts = 6,
                                      deletingProductId,
-                                     displayEditButton = true,
-                                     displayDeleteButton = true,
+                                     mode
                                  }: ProductGridProps) => {
 
     if (isLoading) {
@@ -45,8 +44,7 @@ export const ProductGrid = memo(({
                         onEdit={() => onEdit?.(product)}
                         onDelete={() => onDelete?.(product)}
                         isDeleting={isDeleting && deletingProductId === product.productId}
-                        displayEditButton={displayEditButton}
-                        displayDeleteButton={displayDeleteButton}
+                        mode={mode}
                     />
                 </div>
             ))}

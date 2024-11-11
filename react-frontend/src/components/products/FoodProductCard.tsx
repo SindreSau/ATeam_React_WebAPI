@@ -7,8 +7,8 @@ interface FoodProductCardProps {
     onDelete: (productId: number) => Promise<void> | void;
     onEdit: (foodProduct: FoodProduct) => void;
     isDeleting?: boolean;
-    mode: 'edit' | 'delete';
-};
+    mode: 'admin' | 'vendor';
+}
 
 export const FoodProductCard: React.FC<FoodProductCardProps> = ({
                                                                     foodProduct,
@@ -68,17 +68,17 @@ export const FoodProductCard: React.FC<FoodProductCardProps> = ({
 
             <div className="card-footer border-top mt-auto">
                 <div className="d-flex gap-2">
-                    {mode === 'edit' && (
-                        <Button
-                            variant="outline-secondary"
+                    {mode === 'vendor' && (
+                        <>
+                            <Button
+                                variant="outline-secondary"
                             onClick={() => onEdit(foodProduct)}
                             aria-label={`Edit ${foodProduct.productName}`}
                         >
                             <i className="fa fa-pencil me-1"></i>
                             Edit
                         </Button>
-                    )}
-                    {mode === 'delete' && (
+                    
                         <Button
                             variant="outline-danger"
                             onClick={handleDelete}
@@ -91,7 +91,20 @@ export const FoodProductCard: React.FC<FoodProductCardProps> = ({
                                 <i className="fa fa-trash me-1"></i>
                             )}
                             Delete
-                        </Button>
+                            </Button>
+                        </>
+                    )}
+                    {mode === 'admin' && (
+                        <>
+                            <Button
+                                variant="outline-secondary"
+                                onClick={() => onEdit(foodProduct)}
+                                aria-label={`Edit ${foodProduct.productName}`}
+                            >
+                                <i className="fa fa-pencil me-1"></i>
+                                Edit
+                            </Button>
+                        </>
                     )}
                 </div>
             </div>

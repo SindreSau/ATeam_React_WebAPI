@@ -1,4 +1,4 @@
-import {ButtonHTMLAttributes} from "react";
+import { ButtonHTMLAttributes } from "react";
 import Spinner from "./Spinner";
 
 export type ButtonVariant =
@@ -49,6 +49,7 @@ export const Button = ({
         'd-inline-flex',
         'align-items-center',
         'justify-content-center',
+        'h-100',  // Added this class
         'gap-2',
         className
     ].filter(Boolean).join(' ');

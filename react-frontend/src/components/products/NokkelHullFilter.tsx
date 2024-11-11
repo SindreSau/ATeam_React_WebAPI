@@ -1,4 +1,3 @@
-// NokkelhullFilter.tsx
 import { Button } from '../common/Button';
 
 interface NokkelhullFilterProps {
@@ -8,30 +7,35 @@ interface NokkelhullFilterProps {
 
 export function NokkelhullFilter({ value, onChange }: NokkelhullFilterProps) {
     return (
-        <div className="btn-group" role="group" aria-label="Nøkkelhull filter">
-            <Button
-                variant={value === true ? 'success' : 'outline-success'}
-                onClick={() => onChange(true)}
+        <div className="d-flex gap-2">
+            <span className="d-flex align-items-center">Filter by Nøkkelhull:</span>
+            <div
+                className="btn-group"
+                role="group"
+                aria-label="Nøkkelhull filter"
             >
-                <i className="fa fa-key me-2"></i>
-                Nøkkelhull
-            </Button>
-            <Button
-                variant={value === false ? 'danger' : 'outline-danger'}
-                onClick={() => onChange(false)}
-            >
-                <i className="fa fa-circle-xmark me-2"></i>
-                Not Nøkkelhull
-            </Button>
-            {value !== null && (
+                <Button
+                    variant={value === true ? 'success' : 'outline-success'}
+                    onClick={() => onChange(true)}
+                    title="Nøkkelhull"
+                >
+                    <i className="fa fa-check"></i>
+                </Button>
+                <Button
+                    variant={value === false ? 'danger' : 'outline-danger'}
+                    onClick={() => onChange(false)}
+                    title="Not Nøkkelhull"
+                >
+                    <i className="fa fa-circle-xmark"></i>
+                </Button>
                 <Button
                     variant="outline-secondary"
                     onClick={() => onChange(null)}
+                    title="Clear Filter"
                 >
-                    <i className="fa fa-x me-2"></i>
-                    Clear Filter
+                    <i className="fa fa-x"></i>
                 </Button>
-            )}
+            </div>
         </div>
     );
 }

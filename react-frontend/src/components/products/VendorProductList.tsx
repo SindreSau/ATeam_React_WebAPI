@@ -161,14 +161,9 @@ export const VendorProductList = () => {
                 onNokkelhullFilter={handleNokkelhullFilter}
                 onCreateClick={handleCreateModalOpen}
                 showCreateButton={true}
+                searchParams={searchParams}
+                onSearch={handleSearch}
             />
-
-            <div className="mb-4">
-                <SearchForm
-                    initialSearch={searchParams.get('search') || ''}
-                    onSearch={handleSearch}
-                />
-            </div>
 
             <ProductGrid
                 products={data?.items || []}

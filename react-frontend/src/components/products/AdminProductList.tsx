@@ -131,14 +131,9 @@ export const AdminProductList = () => {
                 onSort={handleSort}
                 onNokkelhullFilter={handleNokkelhullFilter}
                 showCreateButton={false}
+                searchParams={searchParams}
+                onSearch={handleSearch}
             />
-
-            <div className="mb-4">
-                <SearchForm
-                    initialSearch={searchParams.get('search') || ''}
-                    onSearch={handleSearch}
-                />
-            </div>
 
             <ProductGrid
                 products={data?.items ?? []}

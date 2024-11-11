@@ -1,15 +1,13 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, {useState, useEffect, useRef, memo} from 'react';
 
 interface SearchFormProps {
     initialSearch: string;
     onSearch: (searchTerm: string) => void;
 }
 
-export const SearchForm: React.FC<SearchFormProps> = ({initialSearch, onSearch}) => {
+export const SearchForm = memo(({ initialSearch, onSearch }: SearchFormProps) => {
     const [searchTerm, setSearchTerm] = useState(initialSearch);
     const lastSearchTerm = useRef(initialSearch);
-
-      // Update search term when initialSearch changes
 
     useEffect(() => {
         setSearchTerm(initialSearch);
@@ -30,29 +28,30 @@ export const SearchForm: React.FC<SearchFormProps> = ({initialSearch, onSearch})
     };
 
     return (
-        <div className='mb-4'>
-            <div className='row'>
-                <div className='col-md-8 col-lg-6 mx-auto'>
-                    <div className='input-group'>
-                        <input
-                            type='text'
-                            className='form-control'
-                            value={searchTerm}
-                            onChange={handleChange}
-                            placeholder='Search for food products...'
-                        />
-                        <button
-                            type='button'
-                            className='btn btn-primary'
-                            onClick={() => {
-                                onSearch(searchTerm);
-                                lastSearchTerm.current = searchTerm;
-                            }}>
-                            Search
-                        </button>
-                    </div>
-                </div>
-            </div>
+        <div className="input-group">
+            <span className="input-group-text border-end rounded-2">
+                <i className="fa fa-search text-muted"></i>
+            </span>
+            <input
+                type="text"
+                className="form-control"
+                value={searchTerm}
+                onChange={handleChange}
+                placeholder="Search for food products..."
+                aria-label="Search products"
+            />
+            <button
+                type="button"
+                className="btn btn-primary px-4"
+                onClick={() => {
+                    onSearch(searchTerm);
+                    lastSearchTerm.current = searchTerm;
+                }}
+            >
+                Search
+            </button>
         </div>
     );
-};
+});
+
+SearchForm.displayName = 'SearchForm';

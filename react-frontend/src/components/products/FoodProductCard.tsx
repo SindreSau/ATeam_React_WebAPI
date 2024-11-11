@@ -30,6 +30,71 @@ export const FoodProductCard: React.FC<FoodProductCardProps> = ({
         onDelete(foodProduct.productId);
     };
 
+    const renderVendorContent = () => (
+        <>
+            <div className="card-body flex-grow-1">
+                <div className="d-flex flex-wrap gap-2">
+                    {nutritionBadges.map(badge => (
+                        <div
+                            key={badge.label}
+                            className="badge bg-discovery d-flex align-items-center"
+                            title={`${badge.label}: ${badge.value}`}
+                        >
+                            <span className="fw-ligh">{badge.label}:</span>
+                            <span className="ms-1 fw-semibold">{badge.value}</span>
+                        </div>
+                    ))}
+                </div>
+            </div>
+            <div className="card-footer border-top mt-auto">
+                <div className="d-flex gap-2">
+                    <Button
+                        variant="outline-secondary"
+                        onClick={() => onEdit(foodProduct)}
+                        aria-label={`Edit ${foodProduct.productName}`}
+                    >
+                        <i className="fa fa-pencil me-1"></i>
+                        Edit
+                    </Button>
+                    <Button
+                        variant="outline-danger"
+                        onClick={handleDelete}
+                        disabled={isDeleting}
+                        aria-label={`Delete ${foodProduct.productName}`}
+                    >
+                        {isDeleting ? (
+                            <span className="spinner-border spinner-border-sm me-1" role="status"/>
+                        ) : (
+                            <i className="fa fa-trash me-1"></i>
+                        )}
+                        Delete
+                    </Button>
+                </div>
+            </div>
+        </>
+    );
+
+    const renderAdminContent = () => (
+        <>
+            <div className="card-body flex-grow-1">
+                <p className="mb-0">
+                    Created by {foodProduct.createdByUsername}
+                </p>
+            </div>
+            <div className="card-footer border-top mt-auto">
+                <div className="d-flex gap-2">
+                    <Button
+                        variant="outline-secondary"
+                        aria-label={`View details for ${foodProduct.productName}`}
+                    >
+                        <i className="fa fa-info-circle me-1"></i>
+                        Details
+                    </Button>
+                </div>
+            </div>
+        </>
+    );
+
     return (
         <div className="card h-100 d-flex flex-column">
             <div className="card-header border-bottom position-relative">
@@ -50,64 +115,7 @@ export const FoodProductCard: React.FC<FoodProductCardProps> = ({
                     </div>
                 )}
             </div>
-
-            <div className="card-body flex-grow-1">
-                <div className="d-flex flex-wrap gap-2">
-                    {nutritionBadges.map(badge => (
-                        <div
-                            key={badge.label}
-                            className="badge bg-discovery d-flex align-items-center"
-                            title={`${badge.label}: ${badge.value}`}
-                        >
-                            <span className="fw-ligh">{badge.label}:</span>
-                            <span className="ms-1 fw-semibold">{badge.value}</span>
-                        </div>
-                    ))}
-                </div>
-            </div>
-
-            <div className="card-footer border-top mt-auto">
-                <div className="d-flex gap-2">
-                    {mode === 'vendor' && (
-                        <>
-                            <Button
-                                variant="outline-secondary"
-                            onClick={() => onEdit(foodProduct)}
-                            aria-label={`Edit ${foodProduct.productName}`}
-                        >
-                            <i className="fa fa-pencil me-1"></i>
-                            Edit
-                        </Button>
-                    
-                        <Button
-                            variant="outline-danger"
-                            onClick={handleDelete}
-                            disabled={isDeleting}
-                            aria-label={`Delete ${foodProduct.productName}`}
-                        >
-                            {isDeleting ? (
-                                <span className="spinner-border spinner-border-sm me-1" role="status"/>
-                            ) : (
-                                <i className="fa fa-trash me-1"></i>
-                            )}
-                            Delete
-                            </Button>
-                        </>
-                    )}
-                    {mode === 'admin' && (
-                        <>
-                            <Button
-                                variant="outline-secondary"
-                                onClick={() => onEdit(foodProduct)}
-                                aria-label={`View details for ${foodProduct.productName}`}
-                            >
-                                <i className="fa fa-info-circle me-1"></i>
-                                Details
-                            </Button>
-                        </>
-                    )}
-                </div>
-            </div>
+            {mode === 'vendor' ? renderVendorContent() : renderAdminContent()}
         </div>
     );
 };

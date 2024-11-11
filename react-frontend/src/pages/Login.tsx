@@ -88,51 +88,51 @@ const Login: React.FC = () => {
                             )}
 
                             <form onSubmit={handleSubmit}>
-                                <div className="mb-3">
-                                    <label htmlFor="email" className="form-label">
-                                        Email address
-                                    </label>
-                                    <input
-                                        type="email"
-                                        className={`form-control ${emailError ? 'is-invalid' : ''}`}
-                                        id="email"
-                                        value={email}
-                                        onChange={(e) => {
-                                            setEmail(e.target.value);
-                                            validateEmail(e.target.value);
-                                        }}
-                                        required
-                                        autoComplete="email"
-                                        disabled={isSubmitting}
-                                    />
+                                <div className="input-group has-validation">
+                                    <span className="input-group-text">@</span>
+                                    <div className="form-floating is-invalid">
+                                        <input
+                                            type="email"
+                                            className={`form-control ${emailError ? 'is-invalid' : ''}`}
+                                            id="email"
+                                            placeholder='email'
+                                            value={email}
+                                            onChange={(e) => {
+                                                setEmail(e.target.value);
+                                                validateEmail(e.target.value);
+                                            }}
+                                            required
+                                            autoComplete="email"
+                                            disabled={isSubmitting}
+                                        />
+                                        <label htmlFor="email">Email address</label>
+                                    </div>
                                     {emailError && (
-                                        <div className="invalid-feedback">
-                                            {emailError}
-                                        </div>
-                                    )}
+                                            <div className="invalid-feedback">{emailError}</div>
+                                        )}
                                 </div>
-
-                                <div className="mb-3">
-                                    <label htmlFor="password" className="form-label">
-                                        Password
-                                    </label>
-                                    <input
-                                        type="password"
-                                        className={`form-control ${passwordError ? 'is-invalid' : ''}`}
-                                        id="password"
-                                        value={password}
-                                        onChange={(e) => {
-                                            setPassword(e.target.value);
-                                            validatePassword(e.target.value);
-                                        }}
-                                        required
-                                        autoComplete="current-password"
-                                        disabled={isSubmitting}
-                                    />
+                                <div className="input-group has-validation">
+                                    <div className='form-floating is-invalid'>
+                                        <input
+                                            type="password"
+                                            className={`form-control ${passwordError ? 'is-invalid' : ''}`}
+                                            id="password"
+                                            placeholder='password'
+                                            value={password}
+                                            onChange={(e) => {
+                                                setPassword(e.target.value);
+                                                validatePassword(e.target.value);
+                                            }}
+                                            required
+                                            autoComplete="current-password"
+                                            disabled={isSubmitting}
+                                        />
+                                        <label htmlFor="password">Password</label>
+                                    </div>
                                     {passwordError && (
-                                        <div className="invalid-feedback">
-                                            {passwordError}
-                                        </div>
+                                            <div className="invalid-feedback">
+                                                {passwordError}
+                                            </div>
                                     )}
                                 </div>
 

@@ -2,7 +2,6 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
 using System.Security.Claims;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Mvc.Rendering;
 using ATeam_React_WebAPI.Interfaces;
 using ATeam_React_WebAPI.DTOs.Common;
 using ATeam_React_WebAPI.DTOs.Products;

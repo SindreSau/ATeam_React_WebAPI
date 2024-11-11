@@ -11,12 +11,14 @@ namespace ATeam_React_WebAPI.Repositories
     {
         private readonly ApplicationDbContext _context;
         private readonly ILogger<FoodProductRepository> _logger;
+        private readonly IFoodSearchService _searchService;
 
         // Constructor that initializes the repository with the application database context
-        public FoodProductRepository(ApplicationDbContext context, ILogger<FoodProductRepository> logger)
+        public FoodProductRepository(ApplicationDbContext context, ILogger<FoodProductRepository> logger, IFoodSearchService searchService)
         {
             _context = context;
             _logger = logger;
+            _searchService = searchService;
         }
 
         // Asynchronously retrieves a paginated list of food products based on filter and sort criteria
@@ -31,68 +33,40 @@ namespace ATeam_React_WebAPI.Repositories
                 .Include(fp => fp.CreatedBy)
                 .AsQueryable();
 
-            // Apply search if term provided
-            if (!string.IsNullOrWhiteSpace(searchTerm))
-            {
-                _logger.LogInformation("Applying search filter for term: {SearchTerm}", searchTerm);
-                searchTerm = searchTerm.ToLower();
-                query = query.Where(p =>
-                    (p.ProductName != null && EF.Functions.Like(p.ProductName.ToLower(), $"%{searchTerm}%")) ||
-                    (p.FoodCategory != null && p.FoodCategory.CategoryName != null &&
-                    EF.Functions.Like(p.FoodCategory.CategoryName.ToLower(), $"%{searchTerm}%")) ||
-                    (p.CreatedBy != null && p.CreatedBy.UserName != null &&
-                    EF.Functions.Like(p.CreatedBy.UserName.ToLower(), $"%{searchTerm}%"))
-                );
-            }
-
-            // Filter products based on whether they are Nokkelhull qualified
+            // Apply Nokkelhull filter if specified
             if (nokkelhull != null)
             {
                 _logger.LogInformation("Applying Nokkelhull filter: {Nokkelhull}", nokkelhull);
                 query = query.Where(fp => fp.NokkelhullQualified == nokkelhull);
             }
 
-            // Apply sorting based on the specified order
-            switch (orderBy.ToLower())
+            // Get the base data
+            var products = await query.ToListAsync();
+
+            // If we have a search term, apply search and use its ordering
+            if (!string.IsNullOrWhiteSpace(searchTerm))
             {
-                case "productname":
-                    query = query.OrderBy(fp => fp.ProductName ?? "");  // Null coalescing
-                    break;
-                case "productname_desc":
-                    query = query.OrderByDescending(fp => fp.ProductName ?? "");
-                    break;
-                case "category":
-                    query = query.OrderBy(fp => fp.FoodCategory != null ? fp.FoodCategory.CategoryName ?? "" : "")
-                                .ThenBy(fp => fp.ProductName ?? "");
-                    break;
-                case "category_desc":
-                    query = query.OrderByDescending(fp => fp.FoodCategory != null ? fp.FoodCategory.CategoryName ?? "" : "")
-                                .ThenBy(fp => fp.ProductName ?? "");
-                    break;
-                // ... rest of your cases ...
-                default:
-                    query = query.OrderBy(fp => fp.FoodProductId);
-                    break;
+                _logger.LogInformation("Applying fuzzy search for term: {SearchTerm}", searchTerm);
+                products = _searchService.Search(products, searchTerm).ToList();
+            }
+            // If no search term, apply the regular ordering
+            else
+            {
+                products = orderBy?.ToLower() switch
+                {
+                    "productname" => products.OrderBy(p => p.ProductName).ToList(),
+                    "productname_desc" => products.OrderByDescending(p => p.ProductName).ToList(),
+                    "category" => products.OrderBy(p => p.FoodCategory?.CategoryName).ThenBy(p => p.ProductName).ToList(),
+                    "category_desc" => products.OrderByDescending(p => p.FoodCategory?.CategoryName).ThenBy(p => p.ProductName).ToList(),
+                    _ => products.OrderBy(p => p.FoodProductId).ToList()
+                };
             }
 
-            // Log the SQL query before pagination
-            var sqlBeforePaging = query.ToQueryString();
-            _logger.LogInformation("Generated SQL before pagination: {Sql}", sqlBeforePaging);
-
             // Apply pagination
-            query = query
+            return products
                 .Skip((pageNumber - 1) * pageSize)
-                .Take(pageSize);
-
-            // Log final SQL
-            var finalSql = query.ToQueryString();
-            _logger.LogInformation("Final SQL with pagination: {Sql}", finalSql);
-
-            // Execute the query and return the list of food products
-            var results = await query.ToListAsync();
-            _logger.LogInformation("Query returned {Count} results", results.Count);
-
-            return results;
+                .Take(pageSize)
+                .ToList();
         }
 
         // Get paginated food products by vendor ID with filter and sort criteria
@@ -105,38 +79,43 @@ namespace ATeam_React_WebAPI.Repositories
                 .Where(fp => fp.CreatedById == vendorId) // Filter by vendor ID
                 .AsQueryable();
 
-            // Apply search if term provided
-            if (!string.IsNullOrWhiteSpace(search))
-            {
-                search = search.ToLower();
-                query = query.Where(p => p.ProductName.ToLower().Contains(search));
-            }
-
             // Filter products based on whether they are Nokkelhull qualified
             if (nokkelhull != null)
             {
                 query = query.Where(fp => fp.NokkelhullQualified == nokkelhull);
             }
 
-            // Apply ordering
-            query = orderBy?.ToLower() switch
+            // Get the filtered data
+            var products = await query.ToListAsync();
+
+            // If we have a search term, apply search and use its ordering
+            if (!string.IsNullOrWhiteSpace(search))
             {
-                "productname" => query.OrderBy(p => p.ProductName),
-                "productname_desc" => query.OrderByDescending(p => p.ProductName),
-                "category" => query.OrderBy(p => p.FoodCategory.CategoryName),
-                "category_desc" => query.OrderByDescending(p => p.FoodCategory.CategoryName),
-                "energy" => query.OrderBy(p => p.EnergyKcal),
-                "energy_desc" => query.OrderByDescending(p => p.EnergyKcal),
-                "createdat" => query.OrderBy(p => p.CreatedAt),
-                "createdat_desc" => query.OrderByDescending(p => p.CreatedAt),
-                _ => query.OrderBy(p => p.FoodProductId)
-            };
+                _logger.LogInformation("Applying fuzzy search for term: {SearchTerm}", search);
+                products = _searchService.Search(products, search).ToList();
+            }
+            // If no search term, apply the regular ordering
+            else
+            {
+                products = orderBy?.ToLower() switch
+                {
+                    "productname" => products.OrderBy(p => p.ProductName).ToList(),
+                    "productname_desc" => products.OrderByDescending(p => p.ProductName).ToList(),
+                    "category" => products.OrderBy(p => p.FoodCategory?.CategoryName).ToList(),
+                    "category_desc" => products.OrderByDescending(p => p.FoodCategory?.CategoryName).ToList(),
+                    "energy" => products.OrderBy(p => p.EnergyKcal).ToList(),
+                    "energy_desc" => products.OrderByDescending(p => p.EnergyKcal).ToList(),
+                    "createdat" => products.OrderBy(p => p.CreatedAt).ToList(),
+                    "createdat_desc" => products.OrderByDescending(p => p.CreatedAt).ToList(),
+                    _ => products.OrderBy(p => p.FoodProductId).ToList()
+                };
+            }
 
             // Apply pagination
-            return await query
+            return products
                 .Skip((pageNumber - 1) * pageSize)
                 .Take(pageSize)
-                .ToListAsync();
+                .ToList();
         }
 
         // Get the count of food products by vendor
@@ -156,11 +135,11 @@ namespace ATeam_React_WebAPI.Repositories
             {
                 searchTerm = searchTerm.ToLower();
                 query = query.Where(p =>
-                    (p.ProductName != null && EF.Functions.Like(p.ProductName.ToLower(), $"%{searchTerm}%")) ||
-                    (p.FoodCategory != null && p.FoodCategory.CategoryName != null &&
-                    EF.Functions.Like(p.FoodCategory.CategoryName.ToLower(), $"%{searchTerm}%")) ||
+                    (EF.Functions.Like(p.ProductName.ToLower(), $"%{searchTerm}%")) ||
+                    (p.FoodCategory != null &&
+                     EF.Functions.Like(p.FoodCategory.CategoryName.ToLower(), $"%{searchTerm}%")) ||
                     (p.CreatedBy != null && p.CreatedBy.UserName != null &&
-                    EF.Functions.Like(p.CreatedBy.UserName.ToLower(), $"%{searchTerm}%"))
+                     EF.Functions.Like(p.CreatedBy.UserName.ToLower(), $"%{searchTerm}%"))
                 );
             }
 
@@ -213,7 +192,8 @@ namespace ATeam_React_WebAPI.Repositories
 
             if (existingFoodProduct == null)
             {
-                throw new KeyNotFoundException($"FoodProduct with ID {foodProduct.FoodProductId} not found. Could not update.");
+                throw new KeyNotFoundException(
+                    $"FoodProduct with ID {foodProduct.FoodProductId} not found. Could not update.");
             }
 
             // Update all properties
@@ -257,6 +237,5 @@ namespace ATeam_React_WebAPI.Repositories
             await _context.SaveChangesAsync();
             return true; // Return true indicating successful deletion
         }
-
     }
 }

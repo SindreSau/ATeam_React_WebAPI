@@ -5,9 +5,6 @@ using ATeam_React_WebAPI.DTOs.Common;
 using ATeam_React_WebAPI.DTOs.Products;
 using ATeam_React_WebAPI.Models;
 
-
-
-
 namespace ATeam_React_WebAPI.Controllers;
 
 [ApiController]
@@ -56,7 +53,8 @@ public class AdminController : ControllerBase
     );
 
     // If none
-    if (!products.Any())
+    var foodProducts = products as FoodProduct[] ?? products.ToArray();
+    if (!foodProducts.Any())
     {
       return Ok(new PaginatedResponse<FoodProductDTO>
       {
@@ -68,7 +66,7 @@ public class AdminController : ControllerBase
     }
 
     // map to DTO
-    var productDtos = products.Select(fp => new FoodProductDTO
+    var productDtos = foodProducts.Select(fp => new FoodProductDTO
     {
       ProductId = fp.FoodProductId,
       ProductName = fp.ProductName,

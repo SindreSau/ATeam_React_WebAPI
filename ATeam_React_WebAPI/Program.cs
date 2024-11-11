@@ -2,6 +2,7 @@ using ATeam_React_WebAPI.Configuration;
 using ATeam_React_WebAPI.Data;
 using Microsoft.AspNetCore.Identity;
 using ATeam_React_WebAPI.Middleware;
+using ATeam_React_WebAPI.Services;
 using Serilog;
 using Microsoft.OpenApi.Models;
 using Serilog.Events;
@@ -36,6 +37,9 @@ builder.Services.AddAuthorization();
 
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
+
+// Add search service
+builder.Services.AddScoped<IFoodSearchService, FoodSearchService>();
 
 // Enhanced Swagger configuration
 builder.Services.AddSwaggerGen(options =>

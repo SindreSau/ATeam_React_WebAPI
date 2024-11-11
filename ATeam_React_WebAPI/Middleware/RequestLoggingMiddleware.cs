@@ -21,7 +21,7 @@ public class RequestLoggingMiddleware
 
         try
         {
-            var userId = context.User?.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+            var userId = context.User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
 
             using (LogContext.PushProperty("RequestMethod", context.Request.Method))
             using (LogContext.PushProperty("RequestPath", context.Request.Path))
@@ -30,11 +30,6 @@ public class RequestLoggingMiddleware
             using (LogContext.PushProperty("UserAgent", context.Request.Headers.UserAgent.ToString()))
             using (LogContext.PushProperty("UserId", userId ?? "anonymous"))
             {
-                // Uncomment below to also log request start
-                // _logger.LogInformation("HTTP {RequestMethod} {RequestPath} started",
-                //     context.Request.Method,
-                //     context.Request.Path);
-
                 await _next(context);
 
                 sw.Stop();

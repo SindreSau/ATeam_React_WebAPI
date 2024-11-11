@@ -99,10 +99,10 @@ export const FoodProductCard: React.FC<FoodProductCardProps> = ({
                             <Button
                                 variant="outline-secondary"
                                 onClick={() => onEdit(foodProduct)}
-                                aria-label={`Edit ${foodProduct.productName}`}
+                                aria-label={`View details for ${foodProduct.productName}`}
                             >
-                                <i className="fa fa-pencil me-1"></i>
-                                Edit
+                                <i className="fa fa-info-circle me-1"></i>
+                                Details
                             </Button>
                         </>
                     )}

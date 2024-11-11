@@ -1,0 +1,1 @@
+export const PAGE_SIZE_OPTIONS = [2, 6, 9, 12];

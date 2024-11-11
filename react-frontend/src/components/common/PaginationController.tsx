@@ -31,17 +31,16 @@ interface PaginationProps {
  * @param {number} totalItems - Total number of items across all pages.
  * @param {function} onPageChange - Callback when page number changes.
  * @param {function} onPageSizeChange - Callback when page size changes.
- * @param {number[]} [pageSizeOptions=[2, 5, 10, 15]] - Available options for items per page.
+ * @param {number[]} [pageSizeOptions=[2, 6, 9, 12]] - Available options for items per page.
  * @param {number} [maxVisiblePages=5] - Maximum number of page buttons to show.
  */
 const PaginationController = memo(({
                                   currentPage,
                                   totalPages,
                                   pageSize,
-                                  totalItems,
                                   onPageChange,
                                   onPageSizeChange,
-                                  pageSizeOptions = [2, 5, 10, 15],
+                                  pageSizeOptions = [2, 6, 9, 12],
                                   maxVisiblePages = 5,
                               }: PaginationProps) => {
     const getPageNumbers = (): (number | string)[] => {

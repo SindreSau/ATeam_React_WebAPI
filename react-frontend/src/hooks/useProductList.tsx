@@ -4,6 +4,7 @@ import { useQuery } from '@tanstack/react-query';
 import { productsApi } from '../api/products';
 import usePersistedState from './usePersistedState';
 import { useMemo, useCallback } from 'react';
+import {PAGE_SIZE_OPTIONS} from "../config/constants";
 
 export type ProductListMode = 'admin' | 'vendor';
 
@@ -32,7 +33,8 @@ export const useProductList = ({ mode, storageKey }: UseProductListProps) => {
     }), [searchParams]);
 
     // Memoize pageSizeOptions
-    const pageSizeOptions = useMemo(() => [2, 5, 10, 20, 50], []);
+    const pageSizeOptions = useMemo(() => PAGE_SIZE_OPTIONS, []);
+
 
     // Memoize URL pageSize validation
     const validUrlPageSize = useMemo(() => {

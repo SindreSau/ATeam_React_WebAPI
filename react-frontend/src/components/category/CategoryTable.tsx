@@ -1,11 +1,26 @@
+import React, {memo} from "react";
 import {FoodCategory} from "../../types/category";
+import { Button } from "../common/Button";
 
 interface CategoryTableProps {
     categories: FoodCategory[];
+    onDelete?: (categoryId: number) => Promise<void> | void;
+    isDeleting?: boolean;
+    deletingCategoryId?: number;
 }
 
-export const CategoryTable = ({categories}: CategoryTableProps) => {
-    console.log('Categories:', categories);
+export const CategoryTable = memo(({
+    categories, 
+    onDelete, 
+    isDeleting,
+    deletingCategoryId
+    }: CategoryTableProps) => {
+
+        const handleDelete = (category: FoodCategory) => {
+            if (onDelete) {
+                onDelete(category.categoryId);
+            }
+        }
 
     if (!categories || categories.length === 0) {
         return (
@@ -43,9 +58,21 @@ export const CategoryTable = ({categories}: CategoryTableProps) => {
                             <a className="btn btn-sm btn-outline-secondary">
                                 <i className="fa fa-pencil"></i> Edit
                             </a>
-                            <button className="btn btn-sm btn-outline-danger">
-                                <i className="fa fa-trash"></i> Delete
-                            </button>
+                            <Button variant="outline-danger"
+                                    onClick={() => handleDelete(category)}
+                                    disabled={isDeleting}
+                                    aria-label={`Delete ${category.categoryName}`}>
+        
+                                {isDeleting ? (
+                                    <span
+                                        className="spinner-border spinner-border-sm me-1"
+                                        role="status"
+                                    />
+                                ) : (
+                                    <i className="fa fa-trash me-1"></i>
+                                )}
+                                Delete
+                            </Button>
                         </td>
                     </tr>
                     ))}
@@ -55,4 +82,4 @@ export const CategoryTable = ({categories}: CategoryTableProps) => {
         </div>
         </div>
     );
-};
+});

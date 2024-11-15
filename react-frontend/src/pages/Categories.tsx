@@ -2,7 +2,7 @@ import { CategoryTable } from "../components/category/CategoryTable";
 import { useCategoryList } from "../hooks/useCategoryList";
 
 const Categories = () => {
-    const { data: categories } = useCategoryList();
+    const { data: { items: categories } = { items: [] } } = useCategoryList();
 
     return (
         <>

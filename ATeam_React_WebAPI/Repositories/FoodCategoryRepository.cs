@@ -64,16 +64,22 @@ namespace ATeam_React_WebAPI.Repositories
     // Asynchronously deletes a food category by its ID
     public async Task<bool> DeleteCategoryAsync(int categoryId)
     {
+      try
+    {
       var category = await _context.FoodCategories.FindAsync(categoryId);
-      if (category == null)
+      if (category != null)
       {
-        throw new KeyNotFoundException($"FoodCategory with ID {categoryId} not found. Could not delete.");
+        _context.FoodCategories.Remove(category);
+        await _context.SaveChangesAsync();
+        return true;
       }
-      // Delete category from context
-      _context.FoodCategories.Remove(category);
-      // Save changes to database
-      await _context.SaveChangesAsync();
-      return true;
+    }
+  catch (DbUpdateException ex)
+    {
+    // Log error and handle the response
+    throw new InvalidOperationException("Failed to delete category. Ensure no dependencies exist.", ex);
+    }
+    return false;
     }
   }
 }

@@ -1,3 +1,4 @@
+import { CategoryList } from "../components/category/CategoryList";
 import { CategoryTable } from "../components/category/CategoryTable";
 import { useCategoryList } from "../hooks/useCategoryList";
 
@@ -7,7 +8,7 @@ const Categories = () => {
     return (
         <>
             <h1>Categories</h1>
-            <CategoryTable categories={categories ?? []} />
+            <CategoryList />
         </>
     );
 };

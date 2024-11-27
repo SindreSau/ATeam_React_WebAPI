@@ -140,14 +140,18 @@ public class CategoryController : ControllerBase
   {
     try
     {
-      var category = CheckCategory(id);
-
-      await _foodCategoryRepository.DeleteCategoryAsync(id);
-      return NoContent();
+        Console.WriteLine($"Attempting to delete category with ID: {id}");
+        var category = await CheckCategory(id);
+        Console.WriteLine($"Category found: {category.CategoryName}");
+        
+        await _foodCategoryRepository.DeleteCategoryAsync(id);
+        Console.WriteLine($"Category deleted successfully.");
+        return NoContent();
     }
-    catch
+    catch (KeyNotFoundException ex)
     {
-      return NotFound();
+        Console.WriteLine($"Error: {ex.Message}");
+        return NotFound();
     }
-  }
+}
 }

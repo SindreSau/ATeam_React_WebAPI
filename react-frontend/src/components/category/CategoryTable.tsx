@@ -5,13 +5,15 @@ import { Button } from "../common/Button";
 interface CategoryTableProps {
     categories: FoodCategory[];
     onDelete?: (categoryId: number) => Promise<void> | void;
+    onEdit: (FoodCategory: FoodCategory) => void;
     isDeleting?: boolean;
     deletingCategoryId?: number;
 }
 
 export const CategoryTable = memo(({
     categories, 
-    onDelete, 
+    onDelete,
+    onEdit,
     isDeleting,
     deletingCategoryId
     }: CategoryTableProps) => {
@@ -55,15 +57,19 @@ export const CategoryTable = memo(({
                         <td></td>
                         <td></td>
                         <td>
-                            <a className="btn btn-sm btn-outline-secondary">
-                                <i className="fa fa-pencil"></i> Edit
-                            </a>
+                            <Button 
+                            variant="outline-secondary"
+                            onClick={() => onEdit(category)}
+                            aria-label={`Edit ${category.categoryName}`}>
+                                <i className="fa fa-pencil me-1"></i>
+                                Edit
+                            </Button>
                             <Button variant="outline-danger"
                                     onClick={() => handleDelete(category)}
-                                    disabled={isDeleting}
+                                    disabled={isDeleting && deletingCategoryId === category.categoryId}
                                     aria-label={`Delete ${category.categoryName}`}>
         
-                                {isDeleting ? (
+                                {isDeleting && deletingCategoryId === category.categoryId ? (
                                     <span
                                         className="spinner-border spinner-border-sm me-1"
                                         role="status"

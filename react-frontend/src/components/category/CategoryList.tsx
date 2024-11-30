@@ -1,22 +1,49 @@
-import { useCallback, useState, useEffect } from "react";
+import { useCallback, useState } from "react";
 import { FoodCategory } from "../../types/category";
 import { useCategoryMutations } from "../../hooks/useCategoryMutations";
 import ConfirmationModal from "../modals/ConfirmationModal";
 import { CategoryTable } from "./CategoryTable";
 import { useCategoryList } from "../../hooks/useCategoryList";
 import { CategoryEditModal } from "../modals/CategoryEditModal";
+import Toast from "../common/Toast";
+import { Button } from "../common/Button";
 
 export const CategoryList = () => {
     const [editModalCategory, setEditModalCategory] = useState<FoodCategory | null>(null);
     const [deleteModalCategory, setDeleteModalCategory] = useState<FoodCategory | null>(null);
-    const { updateMutation, deleteMutation } = useCategoryMutations();
+    const [newCategoryName, setNewCategoryName] = useState('');
+    const [toast, setToast] = useState<{
+        type: 'success' | 'error';
+        message: string;
+        isVisible: boolean;
+    } | null>(null);
+
+    const { createMutation, updateMutation, deleteMutation } = useCategoryMutations();
     const data = useCategoryList();
 
+    const handleCreateCategory = async (e: React.FormEvent) => {
+        e.preventDefault();
+        if (!newCategoryName.trim()) return;
+
+        try {
+            await createMutation.mutateAsync({ categoryName: newCategoryName });
+            setNewCategoryName('');
+            setToast({
+                type: 'success',
+                message: 'Category created successfully',
+                isVisible: true
+            });
+        } catch (error: any) {
+            setToast({
+                type: 'error',
+                message: error.message || 'Failed to create category',
+                isVisible: true
+            });
+        }
+    };
+
     const handleEditCategory = useCallback((category: FoodCategory) => {
-        console.log("Edit clicked - Category:", category);
-        console.log("Current edit modal state before:", !!editModalCategory);
         setEditModalCategory(category);
-        console.log("Current edit modal state after:", !!editModalCategory);
     }, []);
 
     const handleUpdateCategory = useCallback(async (updatedCategory: FoodCategory) => {
@@ -30,8 +57,17 @@ export const CategoryList = () => {
                 category: updateDto
             });
             setEditModalCategory(null);
-        } catch (error) {
-            console.error('Failed to update category:', error);
+            setToast({
+                type: 'success',
+                message: 'Category updated successfully',
+                isVisible: true
+            });
+        } catch (error: any) {
+            setToast({
+                type: 'error',
+                message: error.message || 'Failed to update category',
+                isVisible: true
+            });
         }
     }, [updateMutation]);
 
@@ -44,15 +80,33 @@ export const CategoryList = () => {
         if (categoryToDelete){
             setDeleteModalCategory(categoryToDelete);
         }
-        
+
     }, [data]);
 
     const handleDeleteConfirm = useCallback(async () => {
         if (!deleteModalCategory) return;
 
-        await deleteMutation.mutateAsync(deleteModalCategory.categoryId);
-        setDeleteModalCategory(null);
+        try {
+            await deleteMutation.mutateAsync(deleteModalCategory.categoryId);
+            setToast({
+                type: 'success',
+                message: 'Category deleted successfully',
+                isVisible: true
+            });
+            setDeleteModalCategory(null);
+        } catch (error: any) {
+            setToast({
+                type: 'error',
+                message: error.message || 'Failed to delete category',
+                isVisible: true
+            });
+            setDeleteModalCategory(null);
+        }
     }, [deleteMutation, deleteModalCategory]);
+
+    const handleCloseToast = useCallback(() => {
+        setToast(null);
+    }, []);
 
     const handleCloseDeleteModal = useCallback(() => {
         setDeleteModalCategory(null);
@@ -60,6 +114,36 @@ export const CategoryList = () => {
 
     return (
         <div className="container py-4">
+            <div className="card mb-4">
+                <div className="card-body">
+                    <h5 className="card-title mb-3">Create New Category</h5>
+                    <form onSubmit={handleCreateCategory} className="d-flex gap-2">
+                        <input
+                            type="text"
+                            className="form-control"
+                            placeholder="Enter category name"
+                            value={newCategoryName}
+                            onChange={(e) => setNewCategoryName(e.target.value)}
+                            required
+                        />
+                        <Button
+                            type="submit"
+                            className="btn btn-primary"
+                            disabled={createMutation.isPending}
+                        >
+                            {createMutation.isPending ? (
+                                <>
+                                    <span className="spinner-border spinner-border-sm me-2"/>
+                                    Creating...
+                                </>
+                            ) : (
+                                'Create'
+                            )}
+                        </Button>
+                    </form>
+                </div>
+            </div>
+
             <CategoryTable
                 categories={data?.data?.items ?? []}
                 onDelete={handleDeleteCategory}
@@ -87,6 +171,17 @@ export const CategoryList = () => {
                 primaryButtonVariant="danger"
                 isLoading={deleteMutation.isPending}
             />
+
+            {toast && (
+                <Toast
+                    type={toast.type}
+                    message={toast.message}
+                    isVisible={toast.isVisible}
+                    onClose={handleCloseToast}
+                    autoDismiss={true}
+                    title={toast.type === 'error' ? 'Error' : 'Success'}
+                />
+            )}
         </div>
     );
 };

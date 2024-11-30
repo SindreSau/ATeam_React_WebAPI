@@ -30,7 +30,7 @@ export const ProductControls = memo(({
             <div className="d-flex flex-column gap-4 mb-4">
                 {/* Header and Create Button Row */}
                 <div className="d-flex justify-content-between align-items-stretch flex-wrap gap-3">
-                    <h1 className="h3 mb-0">
+                    <h1 className=" mb-0">
                         {showCreateButton ? 'My Products' : 'All Products'}
                     </h1>
                     {showCreateButton && (

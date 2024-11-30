@@ -1,34 +1,46 @@
-import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { categoriesApi } from '../api/categories';
-import { CategoryCreate, FoodCategory } from '../types/category';
+import {useMutation, useQueryClient} from '@tanstack/react-query';
+import {categoriesApi} from '../api/categories';
+import {CategoryCreate} from '../types/category';
 
 export const useCategoryMutations = () => {
     const queryClient = useQueryClient();
+
+    const createMutation = useMutation({
+        mutationFn: (category: CategoryCreate) =>
+            categoriesApi.createCategory(category),
+        onSuccess: () => {
+            queryClient.invalidateQueries({queryKey: ['categories']});
+        }
+    });
 
     const updateMutation = useMutation({
         mutationFn: (data: { id: number; category: CategoryCreate }) =>
             categoriesApi.updateCategory(data.id, data.category),
         onSuccess: () => {
-            queryClient.invalidateQueries({ queryKey: ['categories'] });
+            queryClient.invalidateQueries({queryKey: ['categories']});
         }
     });
 
     const deleteMutation = useMutation({
-        mutationFn: (categoryId: number) => {
-            console.log(`Deleting category with ID: ${categoryId}`);
-            return categoriesApi.deleteCategory(categoryId);
+        mutationFn: async (categoryId: number) => {
+            try {
+                const response = await categoriesApi.deleteCategory(categoryId);
+                return response.data;
+            } catch (error: any) {
+                // Extract error message from the response
+                const errorMessage = error.response?.data?.error ||
+                    'Failed to delete category';
+                throw new Error(errorMessage);
+            }
         },
         onSuccess: () => {
-            console.log("Category deleted successfully");
             queryClient.invalidateQueries({ queryKey: ['categories'] });
-        },
-        onError: (error) => {
-            console.error("Error deleting category:", error);
         }
     });
 
-    return { 
+    return {
+        createMutation,
         updateMutation,
-        deleteMutation 
+        deleteMutation
     };
 };

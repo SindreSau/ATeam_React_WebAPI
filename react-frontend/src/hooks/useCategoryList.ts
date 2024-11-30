@@ -6,7 +6,7 @@ export const useCategoryList = () => {
         queryKey: ['categories'],
         queryFn: async () => {
             const response = await categoriesApi.getCategories();
-            return { items: response.data};
+            return { items: response.data };
         },
     });
 };

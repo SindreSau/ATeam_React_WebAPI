@@ -1,6 +1,6 @@
 import React, {memo} from "react";
 import {FoodCategory} from "../../types/category";
-import { Button } from "../common/Button";
+import {Button} from "../common/Button";
 
 interface CategoryTableProps {
     categories: FoodCategory[];
@@ -11,18 +11,18 @@ interface CategoryTableProps {
 }
 
 export const CategoryTable = memo(({
-    categories, 
-    onDelete,
-    onEdit,
-    isDeleting,
-    deletingCategoryId
-    }: CategoryTableProps) => {
+                                       categories,
+                                       onDelete,
+                                       onEdit,
+                                       isDeleting,
+                                       deletingCategoryId
+                                   }: CategoryTableProps) => {
 
-        const handleDelete = (category: FoodCategory) => {
-            if (onDelete) {
-                onDelete(category.categoryId);
-            }
+    const handleDelete = (category: FoodCategory) => {
+        if (onDelete) {
+            onDelete(category.categoryId);
         }
+    }
 
     if (!categories || categories.length === 0) {
         return (
@@ -36,31 +36,36 @@ export const CategoryTable = memo(({
 
     return (
         // Categories Table
-        <div className="card">
-        <div className="card-body">
-            <div className="table-responsive">
-                <table className="table table-striped">
-                    <thead>
-                    <tr>
-                        <th>ID</th>
-                        <th>Category Name</th>
-                        <th>Created At</th>
-                        <th>Updated At</th>
-                        <th>Actions</th>
-                    </tr>
-                    </thead>
-                    <tbody>
-                    {categories.map((category) => (
+        <div className="table-responsive border rounded py-5 px-8">
+            <table className="table table-striped table-hover">
+                <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Category Name</th>
+                    <th>CreatedAt</th>
+                    <th>UpdatedAt</th>
+                    <th>Actions</th>
+                </tr>
+                </thead>
+                <tbody>
+                {categories.map((category) => (
                     <tr key={category.categoryId}>
                         <td>{category.categoryId}</td>
                         <td>{category.categoryName}</td>
-                        <td></td>
-                        <td></td>
+                        <td>{new Date(category.createdAt).toLocaleString(undefined, {
+                            dateStyle: 'medium',
+                            timeStyle: 'short'
+                        })}</td>
+                        <td>{new Date(category.updatedAt).toLocaleString(undefined, {
+                            dateStyle: 'medium',
+                            timeStyle: 'short'
+                        })}</td>
                         <td>
-                            <Button 
-                            variant="outline-secondary"
-                            onClick={() => onEdit(category)}
-                            aria-label={`Edit ${category.categoryName}`}>
+                            <Button
+                                variant="outline-secondary"
+                                className="me-2"
+                                onClick={() => onEdit(category)}
+                                aria-label={`Edit ${category.categoryName}`}>
                                 <i className="fa fa-pencil me-1"></i>
                                 Edit
                             </Button>
@@ -68,7 +73,7 @@ export const CategoryTable = memo(({
                                     onClick={() => handleDelete(category)}
                                     disabled={isDeleting && deletingCategoryId === category.categoryId}
                                     aria-label={`Delete ${category.categoryName}`}>
-        
+
                                 {isDeleting && deletingCategoryId === category.categoryId ? (
                                     <span
                                         className="spinner-border spinner-border-sm me-1"
@@ -81,11 +86,9 @@ export const CategoryTable = memo(({
                             </Button>
                         </td>
                     </tr>
-                    ))}
-                    </tbody>
-                </table>
-            </div>
-        </div>
+                ))}
+                </tbody>
+            </table>
         </div>
     );
 });

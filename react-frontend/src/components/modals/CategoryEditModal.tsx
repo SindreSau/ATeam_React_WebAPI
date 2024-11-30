@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { FoodCategory } from "../../types/category";
 import { useEscapeKey } from "../../hooks/useEscapeKey";
-import {Button} from "../common/Button";
+import { Button } from "../common/Button";
 
 interface CategoryEditModalProps {
     category: FoodCategory;
@@ -33,23 +33,44 @@ export const CategoryEditModal: React.FC<CategoryEditModalProps> = ({category, s
     if (!show) return null;
 
     return (
-        <div className="modal">
-            <form onSubmit={handleSubmit}>
-                <div>
-                    <label htmlFor="name">Category Name</label>
-                    <input
-                        type="text"
-                        id="name"
-                        name="categoryName"  // Ensure this matches the property you want to update
-                        value={editedCategory.categoryName}
-                        onChange={handleChange}
-                    />
+        <>
+            <div className="modal-backdrop fade show"></div>
+            <div
+                className="modal fade show"
+                tabIndex={-1}
+                style={{display: 'block'}}
+                onClick={(e) => {
+                    if (e.target === e.currentTarget) onClose();
+                }}
+            >
+                <div className="modal-dialog modal-dialog-centered">
+                    <div className="modal-content">
+                        <div className="modal-header">
+                            <h5 className="modal-title">Edit Category</h5>
+                            <button type="button" className="btn-close" aria-label="Close" onClick={onClose}/>
+                        </div>
+                        <form onSubmit={handleSubmit}>
+                            <div className="modal-body">
+                                <div className="mb-3">
+                                    <label className="form-label">Category Name</label>
+                                    <input
+                                        type="text"
+                                        className="form-control"
+                                        name="categoryName"
+                                        value={editedCategory.categoryName}
+                                        onChange={handleChange}
+                                        required
+                                    />
+                                </div>
+                            </div>
+                            <div className="modal-footer">
+                                <Button onClick={onClose} className="btn btn-subtle">Cancel</Button>
+                                <Button type="submit" className="btn btn-primary">Save Changes</Button>
+                            </div>
+                        </form>
+                    </div>
                 </div>
-                <div>
-                <Button onClick={onClose} className="btn btn-subtle">Cancel</Button>
-                <Button type="submit" className="btn btn-primary">Save Changes</Button>
-                </div>
-            </form>
-        </div>
-    )
-}
+            </div>
+        </>
+    );
+};

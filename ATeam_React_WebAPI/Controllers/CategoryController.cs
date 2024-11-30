@@ -1,10 +1,9 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
 using ATeam_React_WebAPI.Interfaces;
-using ATeam_React_WebAPI.DTOs.Common;
-using ATeam_React_WebAPI.DTOs.Products;
 using ATeam_React_WebAPI.Models;
 using ATeam_React_WebAPI.DTOs.Categories;
+using ATeam_React_WebAPI.Repositories;
 
 namespace ATeam_React_WebAPI.Controllers;
 
@@ -12,146 +11,148 @@ namespace ATeam_React_WebAPI.Controllers;
 [Route("api/[controller]")]
 public class CategoryController : ControllerBase
 {
-  private readonly IFoodCategoryRepository _foodCategoryRepository;
+    private readonly IFoodCategoryRepository _foodCategoryRepository;
 
-  public CategoryController(IFoodCategoryRepository foodCategoryRepository)
-  {
-    _foodCategoryRepository = foodCategoryRepository;
-  }
-
-  // Helper method:
-  private async Task<FoodCategory> CheckCategory(int categoryId)
-  {
-    var category = await _foodCategoryRepository.GetCategoryByIDAsync(categoryId) ?? throw new KeyNotFoundException($"Category with Id: {categoryId} not found");
-    return category;
-  }
-
-  // === GET ALL ====
-  // api/category
-  [HttpGet]
-  public async Task<ActionResult<IEnumerable<FoodCategoryDTO>>> GetCategories()
-  {
-    var categories = await _foodCategoryRepository.GetAllCategoriesAsync();
-    var categoryDtos = categories.Select(c => new FoodCategoryDTO
+    public CategoryController(IFoodCategoryRepository foodCategoryRepository)
     {
-      CategoryId = c.FoodCategoryId,
-      CategoryName = c.CategoryName
-    });
-
-    return Ok(categoryDtos);
-  }
-
-  // === GET ONE ====
-  // api/category/{id}
-  [HttpGet("{id}")]
-  public async Task<ActionResult<FoodCategoryDTO>> GetCategory(int id)
-  {
-    try
-    {
-      var category = await CheckCategory(id);
-
-      var categoryDto = new FoodCategoryDTO
-      {
-        CategoryId = category.FoodCategoryId,
-        CategoryName = category.CategoryName
-      };
-
-      return Ok(categoryDto);
-    }
-    catch (KeyNotFoundException)
-    {
-      return NotFound();
-    }
-  }
-
-  // === CREATE ===
-  // POST : api/category
-  [HttpPost]
-  [Authorize(Roles="Admin")]
-  public async Task<ActionResult<FoodCategoryDTO>> CreateCategory([FromBody] CategoryCreateDTO createDTO)
-  {
-    if (!ModelState.IsValid)
-    {
-      return BadRequest(ModelState);
+        _foodCategoryRepository = foodCategoryRepository;
     }
 
-    // Create category
-    var category = new FoodCategory
+    // Helper method:
+    private async Task<FoodCategory> CheckCategory(int categoryId)
     {
-      CategoryName = createDTO.CategoryName,
-      CreatedAt = DateTime.UtcNow,
-      UpdatedAt = DateTime.UtcNow
-    };
-
-    // Save category
-    await _foodCategoryRepository.AddCategoryAsync(category);
-
-    // Map DTO
-    var resultDto = new FoodCategoryDTO
-    {
-      CategoryId = category.FoodCategoryId,
-      CategoryName = category.CategoryName
-    };
-
-    return CreatedAtAction(nameof(GetCategory), new { id = category.FoodCategoryId }, resultDto);
-  }
-
-  // === UPDATE ===
-  [HttpPut("{id}")]
-  [Authorize(Roles="Admin")]
-  public async Task<ActionResult<FoodCategoryDTO>> UpdateCategory(int id, [FromBody] CategoryCreateDTO updateDto)
-  {
-    if (!ModelState.IsValid)
-    {
-      return BadRequest(ModelState);
+        var category = await _foodCategoryRepository.GetCategoryByIDAsync(categoryId) ??
+                       throw new KeyNotFoundException($"Category with Id: {categoryId} not found");
+        return category;
     }
 
-    try
+    // === GET ALL ====
+    // api/category
+    [HttpGet]
+    public async Task<ActionResult<IEnumerable<FoodCategoryDTO>>> GetCategories()
     {
-      // Check category exists and get
-      var existingCategory = await CheckCategory(id);
+        var categories = await _foodCategoryRepository.GetAllCategoriesAsync();
+        var categoryDto = categories.Select(c => new FoodCategoryDTO
+        {
+            CategoryId = c.FoodCategoryId,
+            CategoryName = c.CategoryName,
+            CreatedAt = c.CreatedAt,
+            UpdatedAt = c.UpdatedAt
+        });
 
-      existingCategory.CategoryName = updateDto.CategoryName;
-      existingCategory.UpdatedAt = DateTime.UtcNow;
-
-      // Save change
-      var updatedCategory = await _foodCategoryRepository.UpdateCategoryAsync(existingCategory);
-
-      var resultDto = new FoodCategoryDTO
-      {
-        CategoryId = updatedCategory.FoodCategoryId,
-        CategoryName = updatedCategory.CategoryName
-      };
-
-      // Return updated DTO
-      return Ok(resultDto);
+        return Ok(categoryDto);
     }
-    catch (KeyNotFoundException)
+
+    // === GET ONE ====
+    // api/category/{id}
+    [HttpGet("{id}")]
+    public async Task<ActionResult<FoodCategoryDTO>> GetCategory(int id)
     {
-      return NotFound();
-    }
-  }
+        try
+        {
+            var category = await CheckCategory(id);
 
-  // === DELETE Category === 
-  // DELETE : api/category/{id}
-  [HttpDelete("{id}")]
-  [Authorize(Roles="Admin")]
-  public async Task<ActionResult> DeleteCategory(int id)
-  {
-    try
-    {
-        Console.WriteLine($"Attempting to delete category with ID: {id}");
-        var category = await CheckCategory(id);
-        Console.WriteLine($"Category found: {category.CategoryName}");
-        
-        await _foodCategoryRepository.DeleteCategoryAsync(id);
-        Console.WriteLine($"Category deleted successfully.");
-        return NoContent();
+            var categoryDto = new FoodCategoryDTO
+            {
+                CategoryId = category.FoodCategoryId,
+                CategoryName = category.CategoryName
+            };
+
+            return Ok(categoryDto);
+        }
+        catch (KeyNotFoundException)
+        {
+            return NotFound();
+        }
     }
-    catch (KeyNotFoundException ex)
+
+    // === CREATE ===
+    // POST : api/category
+    [HttpPost]
+    [Authorize(Roles = "Admin")]
+    public async Task<ActionResult<FoodCategoryDTO>> CreateCategory([FromBody] CategoryCreateDTO createDTO)
     {
-        Console.WriteLine($"Error: {ex.Message}");
-        return NotFound();
+        if (!ModelState.IsValid)
+        {
+            return BadRequest(ModelState);
+        }
+
+        // Create category
+        var category = new FoodCategory
+        {
+            CategoryName = createDTO.CategoryName,
+            CreatedAt = DateTime.UtcNow,
+            UpdatedAt = DateTime.UtcNow
+        };
+
+        // Save category
+        await _foodCategoryRepository.AddCategoryAsync(category);
+
+        // Map DTO
+        var resultDto = new FoodCategoryDTO
+        {
+            CategoryId = category.FoodCategoryId,
+            CategoryName = category.CategoryName
+        };
+
+        return CreatedAtAction(nameof(GetCategory), new { id = category.FoodCategoryId }, resultDto);
     }
-}
+
+    // === UPDATE ===
+    [HttpPut("{id}")]
+    [Authorize(Roles = "Admin")]
+    public async Task<ActionResult<FoodCategoryDTO>> UpdateCategory(int id, [FromBody] CategoryCreateDTO updateDto)
+    {
+        if (!ModelState.IsValid)
+        {
+            return BadRequest(ModelState);
+        }
+
+        try
+        {
+            // Check category exists and get
+            var existingCategory = await CheckCategory(id);
+
+            existingCategory.CategoryName = updateDto.CategoryName;
+            existingCategory.UpdatedAt = DateTime.UtcNow;
+
+            // Save change
+            var updatedCategory = await _foodCategoryRepository.UpdateCategoryAsync(existingCategory);
+
+            var resultDto = new FoodCategoryDTO
+            {
+                CategoryId = updatedCategory.FoodCategoryId,
+                CategoryName = updatedCategory.CategoryName
+            };
+
+            // Return updated DTO
+            return Ok(resultDto);
+        }
+        catch (KeyNotFoundException)
+        {
+            return NotFound();
+        }
+    }
+
+    // === DELETE Category ===
+    // DELETE : api/category/{id}
+    [HttpDelete("{id}")]
+    [Authorize(Roles = "Admin")]
+    [HttpPost("Delete/{id}")]
+    public async Task<IActionResult> Delete(int id)
+    {
+        try
+        {
+            await _foodCategoryRepository.DeleteCategoryAsync(id);
+            return Ok(new { message = "Category deleted successfully." });
+        }
+        catch (FoodCategoryRepository.CategoryInUseException ex)
+        {
+            return BadRequest(new { error = ex.Message });
+        }
+        catch (KeyNotFoundException ex)
+        {
+            return NotFound(new { error = ex.Message });
+        }
+    }
 }

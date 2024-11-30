@@ -1,4 +1,3 @@
-// src/pages/Login.tsx
 import React, {useState} from 'react';
 import {Link, useNavigate} from 'react-router-dom';
 import {useAuthContext} from '../contexts/AuthContext';
@@ -12,6 +11,7 @@ const Login: React.FC = () => {
     const [password, setPassword] = useState('');
     const [error, setError] = useState<string | null>(null);
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const [wasSubmitted, setWasSubmitted] = useState(false);
 
     // Field-specific errors
     const [emailError, setEmailError] = useState<string | null>(null);
@@ -42,9 +42,8 @@ const Login: React.FC = () => {
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
+        setWasSubmitted(true);
         setError(null);
-        setEmailError(null);
-        setPasswordError(null);
 
         // Validate all fields
         const isEmailValid = validateEmail(email);
@@ -60,7 +59,6 @@ const Login: React.FC = () => {
             await login(email, password);
             navigate('/');
         } catch (err: any) {
-            // Handle specific error messages from the server if available
             if (err.response?.status === 401) {
                 setError('Invalid email or password');
             } else if (err.response?.data?.error) {
@@ -76,7 +74,7 @@ const Login: React.FC = () => {
     return (
         <div className="container mt-5">
             <div className="row justify-content-center">
-                <div className="col-md-8 col-lg-6"> {/* Made wider to match register form */}
+                <div className="col-md-8 col-lg-6">
                     <div className="card">
                         <div className="card-body">
                             <h2 className="card-title text-center mb-4">Login</h2>
@@ -87,52 +85,54 @@ const Login: React.FC = () => {
                                 </div>
                             )}
 
-                            <form onSubmit={handleSubmit}>
-                                <div className="input-group has-validation">
-                                    <span className="input-group-text">@</span>
-                                    <div className="form-floating is-invalid">
-                                        <input
-                                            type="email"
-                                            className={`form-control ${emailError ? 'is-invalid' : ''}`}
-                                            id="email"
-                                            placeholder='email'
-                                            value={email}
-                                            onChange={(e) => {
-                                                setEmail(e.target.value);
-                                                validateEmail(e.target.value);
-                                            }}
-                                            required
-                                            autoComplete="email"
-                                            disabled={isSubmitting}
-                                        />
-                                        <label htmlFor="email">Email address</label>
+                            <form onSubmit={handleSubmit}
+                                  noValidate> {/* Added noValidate to handle our own validation */}
+                                <div className="mb-3">
+                                    <div className="input-group">
+                                        <span className="input-group-text">@</span>
+                                        <div className="form-floating">
+                                            <input
+                                                type="email"
+                                                className={`form-control ${wasSubmitted && emailError ? 'is-invalid' : ''}`}
+                                                id="email"
+                                                placeholder='email'
+                                                value={email}
+                                                onChange={(e) => setEmail(e.target.value)}
+                                                required
+                                                autoComplete="email"
+                                                disabled={isSubmitting}
+                                            />
+                                            <label htmlFor="email">Email address</label>
+                                        </div>
                                     </div>
-                                    {emailError && (
-                                            <div className="invalid-feedback">{emailError}</div>
-                                        )}
+                                    {wasSubmitted && emailError && (
+                                        <div
+                                            className="invalid-feedback d-block"> {/* Added d-block to force display */}
+                                            {emailError}
+                                        </div>
+                                    )}
                                 </div>
-                                <div className="input-group has-validation">
-                                    <div className='form-floating is-invalid'>
+
+                                <div className="mb-4">
+                                    <div className="form-floating">
                                         <input
                                             type="password"
-                                            className={`form-control ${passwordError ? 'is-invalid' : ''}`}
+                                            className={`form-control ${wasSubmitted && passwordError ? 'is-invalid' : ''}`}
                                             id="password"
                                             placeholder='password'
                                             value={password}
-                                            onChange={(e) => {
-                                                setPassword(e.target.value);
-                                                validatePassword(e.target.value);
-                                            }}
+                                            onChange={(e) => setPassword(e.target.value)}
                                             required
                                             autoComplete="current-password"
                                             disabled={isSubmitting}
                                         />
                                         <label htmlFor="password">Password</label>
                                     </div>
-                                    {passwordError && (
-                                            <div className="invalid-feedback">
-                                                {passwordError}
-                                            </div>
+                                    {wasSubmitted && passwordError && (
+                                        <div
+                                            className="invalid-feedback d-block"> {/* Added d-block to force display */}
+                                            {passwordError}
+                                        </div>
                                     )}
                                 </div>
 

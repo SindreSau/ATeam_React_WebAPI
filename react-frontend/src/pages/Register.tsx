@@ -13,6 +13,7 @@ const Register: React.FC = () => {
     const [confirmPassword, setConfirmPassword] = useState('');
     const [error, setError] = useState<string | null>(null);
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const [wasSubmitted, setWasSubmitted] = useState(false);
 
     const [emailError, setEmailError] = useState<string | null>(null);
     const [passwordError, setPasswordError] = useState<string | null>(null);
@@ -50,35 +51,30 @@ const Register: React.FC = () => {
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
+        setWasSubmitted(true);
         setError(null);
-        setEmailError(null);
-        setPasswordError(null);
-        setConfirmPasswordError(null);
 
         // Validate all fields
-        let isValid = validateEmail(email);
-
-        if (!isValidPassword(password)) {
-            isValid = false;
-        }
+        const isEmailValid = validateEmail(email);
+        const isPasswordValid = isValidPassword(password);
+        let isConfirmPasswordValid = true;
 
         if (password !== confirmPassword) {
             setConfirmPasswordError("Passwords don't match");
-            isValid = false;
+            isConfirmPasswordValid = false;
+        } else {
+            setConfirmPasswordError(null);
         }
 
-        if (!isValid) return;
+        if (!isEmailValid || !isPasswordValid || !isConfirmPasswordValid) {
+            return;
+        }
 
         setIsSubmitting(true);
 
         try {
-            // First register the user
             await register(email, password);
-
-            // Then immediately log them in with the same credentials
             await login(email, password);
-
-            // Now navigate after successful login
             navigate('/');
         } catch (err: any) {
             setError(err.response?.data?.error || 'Registration failed. Please try again.');
@@ -88,11 +84,10 @@ const Register: React.FC = () => {
         }
     };
 
-// Update the JSX to show field-specific errors and make the form wider
     return (
         <div className="container mt-5">
             <div className="row justify-content-center">
-                <div className="col-md-8 col-lg-6"> {/* Updated width here */}
+                <div className="col-md-8 col-lg-6">
                     <div className="card">
                         <div className="card-body">
                             <h2 className="card-title text-center mb-4">Register</h2>
@@ -101,86 +96,71 @@ const Register: React.FC = () => {
                                     {error}
                                 </div>
                             )}
-                            <form onSubmit={handleSubmit}>
-                                <div className="input-group has-validation">
-                                    <span className="input-group-text">@</span>
-                                    <div className="form-floating is-invalid">
-                                        <input
-                                            type="email"
-                                            className={`form-control ${emailError ? 'is-invalid' : ''}`}
-                                            id="email"
-                                            placeholder='email'
-                                            value={email}
-                                            onChange={(e) => {
-                                                setEmail(e.target.value);
-                                                validateEmail(e.target.value);
-                                            }}
-                                            required
-                                            autoComplete="email"
-                                            disabled={isSubmitting}
-                                        />
-                                        <label htmlFor='email'>Email address</label>
+                            <form onSubmit={handleSubmit} noValidate>
+                                <div className="mb-3">
+                                    <div className="input-group">
+                                        <span className="input-group-text">@</span>
+                                        <div className="form-floating">
+                                            <input
+                                                type="email"
+                                                className={`form-control ${wasSubmitted && emailError ? 'is-invalid' : ''}`}
+                                                id="email"
+                                                placeholder='email'
+                                                value={email}
+                                                onChange={(e) => setEmail(e.target.value)}
+                                                required
+                                                autoComplete="email"
+                                                disabled={isSubmitting}
+                                            />
+                                            <label htmlFor='email'>Email address</label>
+                                        </div>
                                     </div>
-                                    {emailError && (
-                                        <div className="invalid-feedback">
+                                    {wasSubmitted && emailError && (
+                                        <div className="invalid-feedback d-block">
                                             {emailError}
                                         </div>
                                     )}
                                 </div>
 
-                                <div className="input-group has-validation">
-                                    <div className='form-floating is-invalid'>
+                                <div className="mb-3">
+                                    <div className="form-floating">
                                         <input
                                             type="password"
-                                            className={`form-control ${passwordError ? 'is-invalid' : ''}`}
+                                            className={`form-control ${wasSubmitted && passwordError ? 'is-invalid' : ''}`}
                                             id="password"
                                             placeholder='password'
                                             value={password}
-                                            onChange={(e) => {
-                                                setPassword(e.target.value);
-                                                if (e.target.value.length < 6) {
-                                                    setPasswordError('Password must be at least 6 characters long');
-                                                } else {
-                                                    setPasswordError(null);
-                                                }
-                                            }}
+                                            onChange={(e) => setPassword(e.target.value)}
                                             required
                                             autoComplete="new-password"
                                             disabled={isSubmitting}
                                         />
                                         <label htmlFor='password'>Password</label>
                                     </div>
-                                    {passwordError && (
-                                            <div className="invalid-feedback">
-                                                {passwordError}
-                                            </div>
+                                    {wasSubmitted && passwordError && (
+                                        <div className="invalid-feedback d-block">
+                                            {passwordError}
+                                        </div>
                                     )}
                                 </div>
 
-                                <div className="input-group has-validation">
-                                    <div className='form-floating is-invalid'>
+                                <div className="mb-4">
+                                    <div className="form-floating">
                                         <input
                                             type="password"
-                                            className={`form-control ${confirmPasswordError ? 'is-invalid' : ''}`}
+                                            className={`form-control ${wasSubmitted && confirmPasswordError ? 'is-invalid' : ''}`}
                                             id="confirmPassword"
                                             placeholder='password'
                                             value={confirmPassword}
-                                            onChange={(e) => {
-                                                setConfirmPassword(e.target.value);
-                                                if (e.target.value !== password) {
-                                                    setConfirmPasswordError("Passwords don't match");
-                                                } else {
-                                                    setConfirmPasswordError(null);
-                                                }
-                                            }}
+                                            onChange={(e) => setConfirmPassword(e.target.value)}
                                             required
                                             autoComplete="new-password"
                                             disabled={isSubmitting}
                                         />
                                         <label htmlFor="confirmPassword">Confirm password</label>
                                     </div>
-                                    {confirmPasswordError && (
-                                        <div className="invalid-feedback">
+                                    {wasSubmitted && confirmPasswordError && (
+                                        <div className="invalid-feedback d-block">
                                             {confirmPasswordError}
                                         </div>
                                     )}
@@ -204,25 +184,14 @@ const Register: React.FC = () => {
                             </form>
 
                             <div className="text-center mt-3">
-                                <span>
-                                    Already have an account?{' '}
-                                    <Link
-                                        to="/login"
-                                        className="text-primary text-decoration-none"
-                                        onClick={(e: React.MouseEvent<HTMLAnchorElement>) => {
-                                            e.preventDefault();
-                                            navigate('/login');
-                                        }}
-                                    >
-                                        Login here
-                                    </Link>
-                                </span>
+                                <span>Already have an account? </span>
+                                <Link to="/login">Login here</Link>
                             </div>
                         </div>
                     </div>
                 </div>
-            </div>    
-        </div>    
+            </div>
+        </div>
     );
 };
 

@@ -1,6 +1,5 @@
 import {useCallback, useState} from 'react';
 import {FoodProduct, FoodProductCreateUpdate} from '../../types/foodProduct';
-import {SearchForm} from '../common/SearchForm';
 import {CreateFoodProductModal} from '../modals/CreateFoodProductModal';
 import {CardEditModal} from '../modals/CardEditModal';
 import ConfirmationModal from "../modals/ConfirmationModal";
@@ -10,7 +9,6 @@ import Toast from "../common/Toast";
 import {ProductGrid} from "./ProductGrid";
 import {ProductControls} from "./ProductControls";
 import {PaginationSection} from "./PaginationSection";
-import ProductGridSkeleton from "./ProductGridSkeleton";
 
 export const VendorProductList = () => {
     // Local state for modals
@@ -31,8 +29,6 @@ export const VendorProductList = () => {
         data,
         isLoading,
         isFetching,
-        isError,
-        error,
         currentPage,
         orderBy,
         nokkelhull,

@@ -1,9 +1,6 @@
 // src/components/products/AdminProductList.tsx
 import { useCallback, useState } from 'react';
 import { FoodProduct } from '../../types/foodProduct';
-import { SearchForm } from '../common/SearchForm';
-import PaginationController from '../common/PaginationController';
-import Spinner from '../common/Spinner';
 import { CardEditModal } from '../modals/CardEditModal';
 import ConfirmationModal from "../modals/ConfirmationModal";
 import { useProductMutations } from "../../hooks/useProductMutations";
@@ -30,8 +27,6 @@ export const AdminProductList = () => {
     const {
         data,
         isLoading,
-        isError,
-        error,
         currentPage,
         orderBy,
         nokkelhull,
